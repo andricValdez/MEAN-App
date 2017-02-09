@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en"> 
+	<head>
+		<meta charset="UTF-8"> 
+		<title>AVV</title>	
+ 
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/style.css">
+
+		<script src="javascripts/jquery-1.11.3.min.js"></script>
+		<script src="javascripts/functionsJavaScript.js"></script>
+		<script src="javascripts/angular.min.js"></script>
+		<script src="javascripts/AngularJS.js"></script> 
+		<script src="javascripts/API_FB.js"></script> 
+		<script src="javascripts/bootstrap.min.js"></script>
+		
+ 
+
+	</head>
+
+	<body id="body" ng-app="myApp" ng-controller="mainController as main">
+
+		<div class="container" id="mainPage">
+			<div class="jumbotron text-center">
+				<h1>{{main.message}}</h1>
+			</div>
+
+			<br>
+			<div class="row">
+				<div class="col-sm-4"></div>
+  				<div class="col-sm-4">
+					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#typeAccount">Sign up</button>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-sm-4"></div>
+  				<div class="col-sm-4">
+					<button type="button" class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" data-target="#SignIn">Log in</button>
+				</div>
+			</div>
+ 
+
+			<!-- Modal Sign Up-->
+			<div class="modal fade" role="dialog" id="typeAccount">
+			    <div class="modal-dialog modal-lg">
+			    
+			      <!-- Modal content-->
+			      <div class="modal-content">
+			        <div class="modal-header">
+			          <button type="button" class="close" data-dismiss="modal">&times;</button>
+			          <h4 class="modal-title">Ingresa los datos</h4>
+			        </div>
+			        <div class="modal-body">
+			        	<br>
+				        <button class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp" data-dismiss="modal">Crear Cuenta</button>
+				        <br><br>
+				    	<!-- <div class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="false" onlogin="checkLoginState()"></div> -->
+						<button type="button" class="btn btn-primary btn-lg btn-block" ng-click="checkLoginState()" >Crear cuenta con Facebook</button>
+				    	<br>
+			        </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-default; text-align: center;" data-dismiss="modal">Close</button>
+			        </div>
+			      </div>
+
+			    </div>
+			</div>
+
+
+			<div class="modal fade" id="SignUp" role="dialog">
+			    <div class="modal-dialog modal-lg">
+
+			      <!-- Modal content-->
+			      <div class="modal-content">
+			        <div class="modal-header">
+			          <button type="button" class="close" data-dismiss="modal">&times;</button>
+			          <h4 class="modal-title">Ingresa los datos</h4>
+			        </div>
+			        <div class="modal-body">
+
+			        	<form name="myForm" class="form-group">
+							<label for="email"><strong>Email:</strong></label>
+					        <input type="email" name="email" class="form-control" ng-model="main.email" placeholder="Ingresa Email" required>
+					        <br>
+					        <label for="password"><strong>Contraseña:</strong></label>
+					        <input type="password" name="password" class="form-control" ng-model="main.password"  placeholder="Ingresa contraseña" required>
+					        <br>
+					        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="signUpLocal()">Submit</button>
+							<br>
+					    	<div class="alert alert-warning fade in" ng-show="myForm.email.$invalid && myForm.email.$touched" >
+			    				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			    				<strong>Alerta!</strong> Debes llenar todos los campos.
+			 				</div>
+		 				<form>
+			        </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        </div>
+			      </div>
+
+			    </div>
+			</div>
+
+			<p>{{main.type}}</p>
+			<br>
+			<!--Modal Sign in-->
+<!-- 			<div class="modal fade" id="SignIn" role="dialog">
+			    <div class="modal-dialog modal-lg">
+			    
+			      <div class="modal-content">
+			        <div class="modal-header">
+			          <button type="button" class="close" data-dismiss="modal">&times;</button>
+			          <h4 class="modal-title">Ingresa los datos</h4>
+			        </div>
+			        <div class="modal-body">
+
+				    	<div class="form-group">
+				    		<label for="username"><strong>UserName:</strong></label>
+				        	<input  type="text" name="username" class="form-control" id="userName2"/>
+				    	</div>
+				    	<div class="form-group">
+				        	<label for="password"><strong>Contraseña:</strong></label>
+				        	<input type="password" name="password" class="form-control" id="password2"/>
+				    	</div>
+ 
+				        <br>
+				    	<div class="alert alert-warning fade in" id="emptyFields2">
+		    				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		    				<strong>Alerta!</strong> Debes llenar todos los campos.
+		 				</div>
+
+				    <button type="button" class="btn btn-primary btn-lg btn-block"  id="signInToSystem">Submit</button>
+		  
+			        </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        </div>
+			      </div>
+			      
+			    </div>
+			</div> -->
+
+
+
+
+		    <br><br>
+		    <!-- <h4>Obtener usuarios:</h4> -->
+		    <button type="button" class="btn btn-default" ng-click="getUsers()">Get users</button>
+		    <br><hr>
+		    <div id="usersContent">
+				<table class="table table-hover" id="tableContent">
+				<button type="button" class="btn btn-default" id="deleteUser">Delete users</button>
+			    </table>
+			    <h2 id="noContentTable"></h2>
+		    </div> 
+		    <!-- <button class="btn btn-danger" id="deleteUser">Eliminar</button> -->
+
+
+			
+			<br><br>
+			<p>{{main.test}}</p>
+
+
+
+		<div id="status">
+		</div>
+
+		</div>
+
+	</body>
+
+</html>

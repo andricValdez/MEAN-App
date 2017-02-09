@@ -1,0 +1,57 @@
+	
+	body{
+		background-color: white
+	}
+
+/*	table, th, td{
+		border: 1px solid black;
+		border-collapse: collapse; 
+	}
+
+	th, td {
+		padding: 15px;
+	}
+
+	td{
+		color: blue;
+		text-align: center
+	}
+*/
+	#noContentTable{
+		color:grey;
+		text-align: center;
+	}
+
+	h4, h3{
+		color:#0000ff;
+		text-align: center
+	}
+
+	.jumbotron{
+		background-color: #e6e6e6;
+		color:black;
+	}
+
+	#deleteUser{
+		float: right;
+	}
+
+	#SignUp, #SignIn{
+		float: center;
+		position: absolute;
+
+	}
+
+	#body{
+		background-color: white
+	}
+
+	.centerItem{
+		display: block;
+   	 	margin-left: auto;
+    	margin-right: auto 
+	}
+
+	
+
+

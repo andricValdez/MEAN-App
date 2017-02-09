@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"> 
+	<head>
+		<meta charset="UTF-8"> 
+		<title>AVV</title>	
+ 
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/style.css">
+
+		<script src="javascripts/jquery-1.11.3.min.js"></script>
+		<script src="javascripts/angular.min.js"></script>
+		<!-- <script src="javascripts/functionsJavaScript.js"></script>  -->
+		<script src="javascripts/AngularJS.js"></script> 
+		<script src="javascripts/bootstrap.min.js"></script>
+		<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script> -->
+		
+		<style>
+			body { padding-top:50px; }
+		</style>
+
+	</head>
+
+  
+	<body id="body">
+
+		<!-- Cuando se declara "mainController as main" podemos llamar las variables y funciones de nuestro controlador con el prefijo main-->
+		<div class="container" ng-app="myFirstApp" ng-init="x=2" ng-controller="mainController as main">
+			<div class="jumbotron">
+				<h2>This is my message:</h2>
+				{{main.message}}
+			</div>
+
+			<div>
+				<h2>This is my list</h2>
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<td>Name</td>
+							<td>Color</td>
+							<td>Nerd Level</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="computer in main.computers">
+							<td>{{computer.name}}</td>
+							<td>{{computer.color}}</td>
+							<td>{{computer.nerdness}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="form-group">
+				<label>Message</label>
+				<input type="text" class="form-control" ng-model=main.message>
+			</div>
+
+			<div>
+				<form class="form-inline" ng-submit="main.addComputer()">
+					<input type="text" class="form-control" ng-model="main.computerData.name">
+					<input type="text" class="form-control" ng-model="main.computerData.color">
+					<input type="number" class="form-control" ng-model="main.computerData.nerdness">
+
+					<button type="submit" class="btn btn-success">Add</button>
+				</form>
+			</div>
+
+			<br><br>
+
+		</div>
+
+	</body>
+
+</html>
+
+
+
+
+<!-- Angular JS -->
+<!--
+	DIRECTIVAS (son atributos de HTML con el prefijo "ng"):
+	ng-app
+	ng-model
+	ng-bind
+	ng-init
+
+ -->
+
