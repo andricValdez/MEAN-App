@@ -9,7 +9,7 @@ app.controller('mainController', function ($scope, $http) {
 	var vm = this;
 
 	//Definir variables y objetos aquí
-	vm.message = "¡Welcome to our page!";
+	vm.message = "¡Welcome to our page :)!";
 	vm.email;
 	vm.password;
 	vm.type;
