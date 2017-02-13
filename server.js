@@ -56,8 +56,7 @@ apiRouter.post("/authenticate", function(req, res){
 
 				if (session.active == 'yes') {
 					//Sesion activada
-					
-					res.redirect('views/myHome.html');
+					return res.json(user);
 
 
 				}else{
