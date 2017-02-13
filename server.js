@@ -93,13 +93,13 @@ apiRouter.post("/authenticate", function(req, res){
 					});
 				});
 
-				//Retornar info incluido el token en json  
-				res.json({
-					success: true,
-					message: "Disfruta tu token!",
-					token: token,
-					email: user.email
-				})
+				// //Retornar info incluido el token en json  
+				// res.json({
+				// 	success: true,
+				// 	message: "Disfruta tu token!",
+				// 	token: token,
+				// 	email: user.email
+				// })
 			}
 		}
 	})
