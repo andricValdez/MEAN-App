@@ -60,7 +60,8 @@ apiRouter.post("/authenticate", function(req, res){
 					var obj2 = JSON.parse(user);
 					obj1['email'] = obj2.email
 
-					return res.json(obj1);
+					console.log(obj1)
+					return res.json(session);
 
 
 				}else{
