@@ -42,6 +42,7 @@ app.use(bodyParser.json());
 apiRouter.post("/authenticate", function(req, res){
 	//Encontrar al usuario
 	//Seleccionar explicitamente el nombre y la contraseña
+	type = req.body.type
 	User.findOne({
 		email: req.body.email
 	}).select("email password").exec(function(err, user){
@@ -70,7 +71,7 @@ apiRouter.post("/authenticate", function(req, res){
 				var session = new Session();
 
 				session.token = token;
-				session.type = req.body.type;
+				session.type = type;
 				session.user_id = user._id
 				session.active = 'yes'
 
