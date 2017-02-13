@@ -56,11 +56,7 @@ app.controller('mainController', function ($scope, $http) {
 
 
 	$scope.testB = function(){
-		$http.post("/api/authenticate", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion}).then(function(response) {
 
-       		console.log(response.data);
-    		 
-   		});
 	};
 
 
