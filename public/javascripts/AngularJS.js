@@ -51,6 +51,7 @@ app.controller('mainController', function ($scope, $http) {
 		$http.post("/api/authenticate", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
 			vm.token = response.data.token;
        		vm.test = "Hola " + response.data.email + ". Estes es tu token: " + response.data.token;
+       		console.log(response.data)
     		 
    		});
 	};

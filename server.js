@@ -71,7 +71,7 @@ apiRouter.post("/authenticate", function(req, res){
 				session.token = token;
 				session.type = type;
 				session.user_id = user._id
-				
+				session.active = 'yes'
 
 				//Crear doc de sesison en BD
 				session.save(function(err){
