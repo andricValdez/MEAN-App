@@ -46,10 +46,12 @@ apiRouter.post("/authenticate", function(req, res){
 		Session.findOne({user_id: user._id}, function(err, session) { 
 			console.log(user._id); 
 			if(!session){
+				console.log('session NO created'); 
 				if (req.body.type == 'logInLocal') {
 					saveSession(req, res)
 				}
 			}else if(session){
+				console.log('session YA created'); 
 				active = session.active
 
 				if (active == 'yes') {
