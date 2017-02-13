@@ -40,69 +40,29 @@ app.use(bodyParser.json());
 //Check to make sure that the user has the correct password (by comparing their password to
 //the hashed one saved in the database) • Create a token if all is well
 apiRouter.post("/authenticate", function(req, res){
-	//Encontrar al usuario
-	//Seleccionar explicitamente el nombre y la contraseña
-	type = req.body.type
-	User.findOne({
-		email: req.body.email
-	}).select("email password").exec(function(err, user){
-		if(err)
-			throw err;
- 
-		console.log(user)
-		//No se encontró un usuario con ese email
-		if(!user){
-			res.json({
-				success: false,
-				message: "Fallo de autenticación. El usuario no se encontró"
-			})
-		}else if(user){
-		//Checar si la contraseña coincide
-			var validPassword = user.comparePassword(req.body.password);
 
-			if (!validPassword) {
-				res.json({
-					success: false,
-					message: "Fallo de autenticación. Contraseña Incorrecta"
-				})
-			}else{
-			//Si el usuario y contraseña es correcto, crear token y crear sesión
-				var token = jwt.sign({email: user.email}, superSecret); // 1440 = 24 hrs
-				var session = new Session();
+	User.findOne({email: req.body.email, function(err, user) { 
+		// console.log(user._id); 
+		Session.findOne({user_id: user._id, function(err, session) { 
+			console.log(user._id); 
+			if(!session){
+				if (req.body.type == 'logInLocal') {
+					saveSession(req, res)
+				}
+			}else if(session){
+				active = session.active
 
-				session.token = token;
-				session.type = type;
-				session.user_id = user._id
-				session.active = 'yes'
+				if (active == 'yes') {
+					//Sesion activada
+					return res.json(session);
 
-				//Crear doc de sesison en BD
-				session.save(function(err){
-					if(err){
-						//Duplicar entrada
-						if(err.code = 11000)
-							return res.json({success:false, message:"A user with that email already exist"});
-						else
-							return res.send(err);
-					};
+				}else{
+					saveSession(req, res)
+				}
+			};
+		});
+	});
 
-					Session.find(function(err, sessions){
-						if (err)
-							res.send(err);
-
-						res.json(sessions);
-					});
-				});
-
-				// //Retornar info incluido el token en json  
-				// res.json({
-				// 	success: true,
-				// 	message: "Disfruta tu token!",
-				// 	token: token,
-				// 	email: user.email
-				// })
-			}
-		}
-	})
 
 });
 
@@ -282,6 +242,72 @@ function saveUsers(email, password, type, oauth_Token, res){
 	});
 };
 
+function saveSession(req, res){
+	type = req.body.type
+
+	User.findOne({
+		email: req.body.email
+	}).select("email password").exec(function(err, user){
+		if(err)
+			throw err;
+ 
+		console.log(user)
+		//No se encontró un usuario con ese email
+		if(!user){
+			res.json({
+				success: false,
+				message: "Fallo de autenticación. El usuario no se encontró"
+			})
+		}else if(user){
+		//Checar si la contraseña coincide
+			var validPassword = user.comparePassword(req.body.password);
+
+			if (!validPassword) {
+				res.json({
+					success: false,
+					message: "Fallo de autenticación. Contraseña Incorrecta"
+				})
+			}else{
+			//Si el usuario y contraseña es correcto, crear token y crear sesión
+				var token = jwt.sign({email: user.email}, superSecret); // 1440 = 24 hrs
+				var session = new Session();
+
+				session.token = token;
+				session.type = type;
+				session.user_id = user._id
+				session.active = 'yes'
+
+				//Crear doc de sesison en BD
+				session.save(function(err){
+					if(err){
+						//Duplicar entrada
+						if(err.code = 11000)
+							return res.json({success:false, message:"That session already exist"});
+						else
+							return res.send(err);
+					};
+
+					// Session.find(function(err, sessions){
+					// 	if (err)
+					// 		res.send(err);
+
+					// 	res.json(sessions);
+					// });
+
+					//Retornar info incluido el token en json  
+					res.json({
+						success: true,
+						message: "Disfruta tu token!.. Sesion creada :)",
+						token: token,
+						email: user.email
+					})
+				});
+
+				
+			}
+		}
+	})
+}
 
 
 
