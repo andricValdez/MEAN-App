@@ -56,6 +56,9 @@ apiRouter.post("/authenticate", function(req, res){
 
 				if (session.active == 'yes') {
 					//Sesion activada
+					for (var i = session.length - 1; i >= 0; i--) {
+						session[i]
+					}
 					return res.json(session);
 
 
