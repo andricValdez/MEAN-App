@@ -51,15 +51,13 @@ apiRouter.post("/authenticate", function(req, res){
 					saveSession(req, res, user, errU)
 				}
 			}else if(session){
+				console.log(typeof(session))
 				// console.log('session YA created'); 
 				// console.log(session.active)
 
 				if (session.active == 'yes') {
 					//Sesion activada
-					var obj = session.toString()
-					for (var i = obj.length - 1; i >= 0; i--) {
-						obj[i]
-					}
+
 					return res.json(session);
 
 
