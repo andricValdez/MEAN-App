@@ -9,7 +9,7 @@ app.controller('mainController', function ($scope, $http) {
 	var vm = this;
 
 	//Definir variables y objetos aquí
-	vm.message = "¡Welcome to our page :(!";
+	vm.message = "¡Welcome to our page!";
 	vm.email;
 	vm.password;
 	vm.type;
@@ -43,6 +43,13 @@ app.controller('mainController', function ($scope, $http) {
 		});
 	};
 
+	$scope.testB = function(){
+		$http.post("/api/authenticate", {'email':vm.email}).then(function(response) {
+
+       		console.log(response.data);
+    		 
+   		});
+	};
 
 
 });

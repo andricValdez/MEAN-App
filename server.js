@@ -40,13 +40,14 @@ app.use(bodyParser.json());
 //the hashed one saved in the database) • Create a token if all is well
 apiRouter.post("/authenticate", function(req, res){
 	//Encontrar al usuario
-	//Seleccionar explicitamente el nombre  la contraseña
+	//Seleccionar explicitamente el nombre y la contraseña
 	User.findOne({
 		email: req.body.email
 	}).select("email password").exec(function(err, user){
 		if(err)
 			throw err;
 
+		console.log(user)
 		//No se encontró un usuario con ese email
 		if(!user){
 			res.json({
