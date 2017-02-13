@@ -41,9 +41,9 @@ app.use(bodyParser.json());
 //the hashed one saved in the database) • Create a token if all is well
 apiRouter.post("/authenticate", function(req, res){
 
-	User.findOne({email: req.body.email, function(err, user) { 
+	User.findOne(email: req.body.email, function(err, user) { 
 		// console.log(user._id); 
-		Session.findOne({user_id: user._id, function(err, session) { 
+		Session.findOne(user_id: user._id, function(err, session) { 
 			console.log(user._id); 
 			if(!session){
 				if (req.body.type == 'logInLocal') {
