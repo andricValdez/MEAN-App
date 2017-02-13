@@ -56,6 +56,7 @@ apiRouter.post("/authenticate", function(req, res){
 
 				if (session.active == 'yes') {
 					//Sesion activada
+					session.email = user.email
 					return res.json(session);
 
 
