@@ -43,7 +43,7 @@ apiRouter.post("/authenticate", function(req, res){
 
 	User.findOne({email: req.body.email}, function(err, user) { 
 		// console.log(user._id); 
-		Session.findOne({user_id: user._id}, function(err, session) { 
+		Session.findOne({user_id: user._id}).select("active").exec(function(err, session){
 			console.log(session); 
 			if(!session){
 				console.log('session NO created'); 
