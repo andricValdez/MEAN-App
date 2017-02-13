@@ -56,8 +56,8 @@ apiRouter.post("/authenticate", function(req, res){
 
 				if (session.active == 'yes') {
 					//Sesion activada
-					return res.json(user);
-
+					return res.json(session);
+					 
 
 				}else{
 					saveSession(req, res, user, errU)
