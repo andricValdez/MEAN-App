@@ -64,3 +64,12 @@ app.controller('mainController', function ($scope, $http) {
 
 });
 
+
+app.controller('myHomeController', function($scope, $http){
+	//Atar this al vm (view-model)
+	var vm = this;
+
+	vm.message = "hello";
+
+})
+
