@@ -44,15 +44,15 @@ apiRouter.post("/authenticate", function(req, res){
 	User.findOne({email: req.body.email}).select("email password").exec(function(errU, user){
 		// console.log(user._id); 
 		Session.findOne({user_id: user._id}).select("active token").exec(function(errS, session){
-			console.log(session); 
+			// console.log(session); 
 			if(!session){
 				console.log('session NO created'); 
 				if (req.body.type == 'logInLocal') {
 					saveSession(req, res, user, errU)
 				}
 			}else if(session){
-				console.log('session YA created'); 
-				console.log(session.active)
+				// console.log('session YA created'); 
+				// console.log(session.active)
 
 				if (session.active == 'yes') {
 					//Sesion activada
