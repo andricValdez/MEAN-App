@@ -52,9 +52,9 @@ apiRouter.post("/authenticate", function(req, res){
 				}
 			}else if(session){
 				console.log('session YA created'); 
-				active = session.active
+				console.log(session.active)
 
-				if (active == 'yes') {
+				if (session.active == 'yes') {
 					//Sesion activada
 					return res.json(session);
 
