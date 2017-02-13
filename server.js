@@ -44,6 +44,7 @@ apiRouter.post("/authenticate", function(req, res){
 	User.findOne({email: req.body.email}).select("email password").exec(function(errU, user){
 		// console.log(user._id); 
 		Session.findOne({user_id: user._id}).select("active token").exec(function(errS, session){
+			session.email = user.email
 			console.log(session); 
 			if(!session){
 				console.log('session NO created'); 
@@ -56,7 +57,7 @@ apiRouter.post("/authenticate", function(req, res){
 
 				if (session.active == 'yes') {
 					//Sesion activada
-					session.email = user.email
+
 					return res.json(session);
 
 
