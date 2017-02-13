@@ -1,6 +1,6 @@
 
 
-var app = angular.module("myApp",[]);
+var app = angular.module("myApp",["ngRoute"]);
 
 
 app.controller('mainController', function ($scope, $http) {
