@@ -48,7 +48,7 @@ apiRouter.post("/authenticate", function(req, res){
 			if(!session){
 				console.log('session NO created'); 
 				if (req.body.type == 'logInLocal') {
-					saveSession(req, res)
+					saveSession(req, res, user, errU)
 				}
 			}else if(session){
 				console.log('session YA created'); 
