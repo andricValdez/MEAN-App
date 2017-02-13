@@ -9,7 +9,8 @@ var express = require('express'),
 	bodyParser = require ("body-parser"),
 	morgan = require("morgan"),              //Usado para ver peticiones
 	port = process.env.PORT || 8080,         //Establecer el puerto de nuestra aplicación
-	User = require("./models/User"),         //Modelo del usuario 
+	User = require("./models/User"),         //Modelo del usuario
+	Session = require("./models/Session"),   //Modelo de sesion
 	jwt = require("jsonwebtoken");
 
 var http = require("http");
