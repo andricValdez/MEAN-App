@@ -17,6 +17,7 @@ app.controller('mainController', function ($scope, $http) {
 	vm.email_IniciarSeSion;
 	vm.password_IniciarSeSion;
 	vm.type_IniciarSeSion;
+	vm.token;
 
 	// Funciones
 	$scope.signUpLocal = function(){
@@ -48,8 +49,8 @@ app.controller('mainController', function ($scope, $http) {
 	$scope.logInLocal = function(){
 		vm.type_IniciarSeSion = 'logInLocal';
 		$http.post("/api/authenticate", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
-
-       		console.log(response.data);
+			vm.token = response.data.token;
+       		vm.test = "Hola " + response.data.email + ". Estes es tu token: " + response.data.token;
     		 
    		});
 	};

@@ -64,9 +64,33 @@ apiRouter.post("/authenticate", function(req, res){
 					message: "Fallo de autenticación. Contraseña Incorrecta"
 				})
 			}else{
-			//Si el usuario y contraseña es correcto, crear token
+			//Si el usuario y contraseña es correcto, crear token y crear sesión
 				var token = jwt.sign({email: user.email}, superSecret); // 1440 = 24 hrs
-			
+				var session = new Session();
+
+				session.token = token;
+				session.type = type;
+				session.user_id = user._id
+				
+
+				//Crear doc de sesison en BD
+				session.save(function(err){
+					if(err){
+						//Duplicar entrada
+						if(err.code = 11000)
+							return res.json({success:false, message:"A user with that email already exist"});
+						else
+							return res.send(err);
+					};
+
+					Session.find(function(err, sessions){
+						if (err)
+							res.send(err);
+
+						res.json(sessions);
+					});
+				});
+
 				//Retornar info incluido el token en json  
 				res.json({
 					success: true,
