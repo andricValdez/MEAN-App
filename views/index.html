@@ -173,3 +173,41 @@
 	</body>
 
 </html>
+
+<!-- 
+segunda etapa:
+Tengo que realizar la parte de inicio sesion.
+1. Cuando un usuario haga un sign in LOCAL debo de validar password y crear token. 
+2. Cuando haga sign in con FB debo: 
+	I) Checar si esa cuenta ya existe en mi BD (email, username, etc), esto es, que el email de FB no exita 	en mi BD (usuario local)
+   II) Validar el oauth_token de FB (ya lo hace).. y crear sesión si sí es valido
+  III) Crear token si el oauth_token es valido
+
+Debo crear una nueva tabla/documento en donde vengas los datos de inicio de sesion, como:
+	- type -> indica la forma en que el usuario está ingresando al sistema (local o FB)
+	- token -> Es el string que se genera una vez que se valide al usuario, todos deben tener token 
+			   (los usuarios con cuenta local y los de FB)
+	- user_id -> Este id es el del usuario, y se obtiene de la tabla/doc Users y es usado para relación de 				 datos entre tablas
+	- oauth_token -> este string es el de incio de sesión con fB (para sign in local es null). Este token se 				  debe validar con FB (servidorLocal-servidor-FB)... una vez validado se almacena
+	- id -> se genera automaticamente por cada sesión creada
+
+
+Crear un endpointde nombre: POST /sessions
+Donde de input siempre va a hacer -> email/password (local) || oauth_token (FB)
+Y de salida siempre se va a retornar un token local
+
+Crear una función: decipher_token() que reciba un token (input) y como salida me retorne el user_id y el oaut_token. Esta función desencripta el token local para obtener otros parametros de la BD 
+
+NOTA: Para lo usuarios que iniciaron sesión con FB, se les entrega un token local, que por cada peticón hecha a mi servidor debo validar ese token (desencrptarlo para tomar id de usuario) y posteriormente validar con FB el oauth_token que se tiene almacenado en la DB 
+
+NOTA: quitar del sign up la opción de FB. Esa debe ir en sign in... puesto que si el usuario desea iniciar sesión con FB, la cuenta se debe crear automaticamente y gusrdar registro en mi servidor (ya lo hace, solo cambiar)
+ -->
+
+
+
+
+
+
+
+
+

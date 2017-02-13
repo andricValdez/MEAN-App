@@ -18,99 +18,6 @@ var https = require("https");
 
 var superSecret = "ilovechilechilechilechile";
 
-
-//********************** Basic Routes ********************************************************** 
-// app.get('/', function(req, res){
-// 	res.sendFile(path.join(__dirname + '/index.html'));
-// });
-
-// app.get('/myFisrtRouter', function(req, res){
-// 	res.send("<h1>Congrats! This is your furst Route!</h1>");
-// });
-
-//********************** express.Router() ****************************************************** 
-// adminRouter.get("/", function(req, res){
-// 	res.send("Hello, I am the Dashboard")
-// });
-
-// adminRouter.get("/users", function(req, res){
-// 	res.send("I show all the users!")
-// });
-
-// adminRouter.get("/post", function(req, res){
-// 	res.send("I show all the posts!")
-// });
-
-// app.use("/admin", adminRouter)
-
-//********************** route Middleware using express.Routing() ******************************* 
-// adminRouter.use(function(req, res, next){ //amdminRouter.use define una middleware
-// 	//log each request to the console
-// 	console.log(req.method, req.url);
-
-// 	//Haz todas las cosas que quieras y después ve a la ruta
-// 	next();
-// })
-
-// adminRouter.get("/", function(req, res){
-// 	res.sendFile(path.join(__dirname + '/index.html'));
-// });
-
-// adminRouter.get("/users", function(req, res){
-// 	res.send("I am the users")
-// });
-
-// app.use("/admin", adminRouter)
- 
-//********************** structuring Routes **************************************************** 
-//podemos tener nuestra app limpia y organizada porque podemos mover cada definición de ruta 
-//dentro de su archivo y entrar a esos archivos cuando hacemos uso de app.use
-//Ejemplo:
-//app.use('/', basicRoutes);
-//app.use('/admin', adminRoutes);
-//app.use('/api', apiRoutes);
-
-//********************** Rutas con parámetros **************************************************
-// adminRouter.get("/users/:name", function(req, res){
-// 	res.send("<h1 style='text-align:center'>Hello " + req.params.name +"!</h1>");
-// });
-
-// app.use("/admin", adminRouter);
-
-//********************** Rutas Middlewares para parámetros (.param())***************************
-// //.parm() ejecuta un middleware para que corra para cierto parámetro de una ruta 
-// //Es importante poner el middleware antes de la RUTA!!
-// adminRouter.param('name', function(req, res, next, name){
-// 	//Hacer cosas: validar nombre, blah, blah, ...
-// 	console.log("Haciendo validación sobre " + name);
-// 	//Una vez hecha la validación guardar el nuevo item en req
-// 	req.name = name
-// 	//Ve a la siguiente cosa
-// 	next();
-// });
-
-// adminRouter.get("/users/:name", function(req, res){
-// 	res.send("Hello "+req.name + "!")
-// })
-
-// app.use("/admin", adminRouter);
-
-//********************** Login Routes (app.route())**********************************************
-// //Nos permite definir multiples acciones en una simple login route
-// //Una ruta GET para mostrar el formulario de login y una ruta POST para procesar el formulario login
-// //Estas son declaradas directamente a nuestro objeto principal "app" en server.js, pero tambien se
-// //pueden declarar directamente en el objeto adminRouter
-// app.route("/login")
-// 	//Show the form
-// 	.get(function(req, res){
-// 		res.send("This is the login form");
-// 	})
-
-// 	//Process the form
-// 	.post(function(req, res){
-// 		console.log("Processing");
-// 		res.send("Processing the login form");
-// 	});
  
 //************************** Build a RESTFull API **********************************************
 
@@ -127,13 +34,6 @@ mongoose.connect("mongodb://localhost/API_DB");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// //Configurar la app para manejar las peticiones CORS
-// app.use(function(req, res, next) {
-// 	res.setHeader('Access-Control-Allow-Origin', '*');
-// 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-// 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-// 	next();
-// });
 
 //Check to make sure a user with that username exists
 //Check to make sure that the user has the correct password (by comparing their password to
@@ -354,6 +254,7 @@ function saveUsers(email, password, type, oauth_Token, res){
 		});
 	});
 };
+
 
 
 
