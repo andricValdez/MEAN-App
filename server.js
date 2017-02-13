@@ -70,7 +70,7 @@ apiRouter.post("/authenticate", function(req, res){
 				var session = new Session();
 
 				session.token = token;
-				session.type = type;
+				session.type = req.body.type;
 				session.user_id = user._id
 				session.active = 'yes'
 
