@@ -56,11 +56,11 @@ apiRouter.post("/authenticate", function(req, res){
 
 				if (session.active == 'yes') {
 					//Sesion activada
-					var session = JSON.parse(session);
-					var user = JSON.parse(user);
+					var obj1 = JSON.parse(session);
+					var obj2 = JSON.parse(user);
+					obj1['email'] = obj2.email
 
-
-					return res.json(session['email'] = user.email);
+					return res.json(obj1);
 
 
 				}else{
