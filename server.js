@@ -44,7 +44,7 @@ apiRouter.post("/authenticate", function(req, res){
 	User.findOne({email: req.body.email}, function(err, user) { 
 		// console.log(user._id); 
 		Session.findOne({user_id: user._id}, function(err, session) { 
-			console.log(user._id); 
+			console.log(session); 
 			if(!session){
 				console.log('session NO created'); 
 				if (req.body.type == 'logInLocal') {
