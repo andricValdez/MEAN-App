@@ -10,15 +10,18 @@ app.controller('mainController', function ($scope, $http) {
 
 	//Definir variables y objetos aquí
 	vm.message = "¡Welcome to our page!";
-	vm.email;
-	vm.password;
-	vm.type;
+	vm.email_CrearCuenta;
+	vm.password_CrearCuenta;
+	vm.type_CrearCuenta;
 	vm.test;
+	vm.email_IniciarSeSion;
+	vm.password_IniciarSeSion;
+	vm.type_IniciarSeSion;
 
 	// Funciones
 	$scope.signUpLocal = function(){
-		vm.type = 'signUpLocal'
-		$http.post("/api/users", {'password':vm.password, 'email':vm.email, 'type':vm.type}).then(function(response) {
+		vm.type_CrearCuenta = 'signUpLocal'
+		$http.post("/api/users", {'password':vm.password_CrearCuenta, 'email':vm.email_CrearCuenta, 'type':vm.type_CrearCuenta}).then(function(response) {
 
        		console.log(response.data);
     		 
@@ -27,7 +30,7 @@ app.controller('mainController', function ($scope, $http) {
 
 	$scope.checkLoginState = function(){
   		FB.login(function(response){
-  			vm.type = 'signUpFB'
+  			vm.type_CrearCuenta = 'signUpFB'
   			if (response.status == "connected") {
   				$http.post("/api/usersFB", {'oauth_Token':response.authResponse.accessToken, 'type':vm.type}).then(function(response) {
     				console.log(response.data);
@@ -36,15 +39,24 @@ app.controller('mainController', function ($scope, $http) {
 		});
 	};
 
-
 	$scope.getUsers = function(){
 		$http.get("/api/users").then(function(response){
 			vm.test = response.data;
 		});
 	};
 
+	$scope.logInLocal = function(){
+		vm.type_IniciarSeSion = 'logInLocal';
+		$http.post("/api/authenticate", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
+
+       		console.log(response.data);
+    		 
+   		});
+	};
+
+
 	$scope.testB = function(){
-		$http.post("/api/authenticate", {'password':vm.password, 'email':vm.email}).then(function(response) {
+		$http.post("/api/authenticate", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion}).then(function(response) {
 
        		console.log(response.data);
     		 

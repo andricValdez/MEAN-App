@@ -46,7 +46,7 @@ apiRouter.post("/authenticate", function(req, res){
 	}).select("email password").exec(function(err, user){
 		if(err)
 			throw err;
-
+ 
 		console.log(user)
 		//No se encontró un usuario con ese email
 		if(!user){

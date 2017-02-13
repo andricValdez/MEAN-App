@@ -31,19 +31,19 @@
 			<div class="row">
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
-					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#typeAccount">Sign up</button>
+					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#typeAccount">Crear cuenta</button>
 				</div>
 			</div>
 			<br>
 			<div class="row">
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
-					<button type="button" class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" data-target="#SignIn">Log in</button>
+					<button type="button" class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" data-target="#SignIn">Iniciar sesion</button>
 				</div>
 			</div>
   
 
-			<!-- Modal Sign Up-->
+	<!-- Modals Crear cuenta-->
 			<div class="modal fade" role="dialog" id="typeAccount">
 			    <div class="modal-dialog modal-lg">
 			    
@@ -56,10 +56,7 @@
 			        <div class="modal-body">
 			        	<br>
 				        <button class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp" data-dismiss="modal">Crear Cuenta</button>
-				        <br><br>
-				    	<!-- <div class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="false" onlogin="checkLoginState()"></div> -->
-						<button type="button" class="btn btn-primary btn-lg btn-block" ng-click="checkLoginState()" >Crear cuenta con Facebook</button>
-				    	<br>
+				        <br>
 			        </div>
 			        <div class="modal-footer">
 			          <button type="button" class="btn btn-default; text-align: center;" data-dismiss="modal">Close</button>
@@ -68,7 +65,6 @@
 
 			    </div>
 			</div>
-
 
 			<div class="modal fade" id="SignUp" role="dialog">
 			    <div class="modal-dialog modal-lg">
@@ -83,10 +79,10 @@
 
 			        	<form name="myForm" class="form-group">
 							<label for="email"><strong>Email:</strong></label>
-					        <input type="email" name="email" class="form-control" ng-model="main.email" placeholder="Ingresa Email" required>
+					        <input type="email" name="email" class="form-control" ng-model="main.emai_CrearCuenta" placeholder="Ingresa Email" required>
 					        <br>
 					        <label for="password"><strong>Contraseña:</strong></label>
-					        <input type="password" name="password" class="form-control" ng-model="main.password"  placeholder="Ingresa contraseña" required>
+					        <input type="password" name="password" class="form-control" ng-model="main.password_CrearCuenta"  placeholder="Ingresa contraseña" required>
 					        <br>
 					        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="signUpLocal()">Submit</button>
 							<br>
@@ -106,8 +102,36 @@
 
 			<p>{{main.type}}</p>
 			<br>
-			<!--Modal Sign in-->
-<!-- 			<div class="modal fade" id="SignIn" role="dialog">
+
+
+
+	<!--Modal Iniciar sesion-->
+			<div class="modal fade" role="dialog" id="typeAccount">
+			    <div class="modal-dialog modal-lg">
+			    
+			      <!-- Modal content-->
+			      <div class="modal-content">
+			        <div class="modal-header">
+			          <button type="button" class="close" data-dismiss="modal">&times;</button>
+			          <h4 class="modal-title">Ingresa los datos</h4>
+			        </div>
+			        <div class="modal-body">
+			        	<br>
+				        <button class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignIn" data-dismiss="modal">Iniciar sesion</button>
+				        <br>
+				        <!-- <div class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="false" onlogin="checkLoginState()"></div> -->
+						<button type="button" class="btn btn-primary btn-lg btn-block" ng-click="checkLoginState()" >Iniciar sesion con Facebook</button>
+						<br>
+			        </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-default; text-align: center;" data-dismiss="modal">Close</button>
+			        </div>
+			      </div>
+
+			    </div>
+			</div>
+
+			<div class="modal fade" id="SignIn" role="dialog">
 			    <div class="modal-dialog modal-lg">
 			    
 			      <div class="modal-content">
@@ -118,12 +142,12 @@
 			        <div class="modal-body">
 
 				    	<div class="form-group">
-				    		<label for="username"><strong>UserName:</strong></label>
-				        	<input  type="text" name="username" class="form-control" id="userName2"/>
+				    		<label for="username"><strong>Emai:</strong></label>
+				        	<input  type="text" name="username" class="form-control" ng-model="email_IniciarSeSion" placeholder="Ingresa email" required/>
 				    	</div>
 				    	<div class="form-group">
 				        	<label for="password"><strong>Contraseña:</strong></label>
-				        	<input type="password" name="password" class="form-control" id="password2"/>
+				        	<input type="password" name="password" class="form-control" ng-model="password_IniciarSeSion" placeholder="Ingresa contraseña" required/>
 				    	</div>
  
 				        <br>
@@ -132,7 +156,7 @@
 		    				<strong>Alerta!</strong> Debes llenar todos los campos.
 		 				</div>
 
-				    <button type="button" class="btn btn-primary btn-lg btn-block"  id="signInToSystem">Submit</button>
+				    <button type="button" class="btn btn-primary btn-lg btn-block" ng-click=logInLocal()>Submit</button>
 		  
 			        </div>
 			        <div class="modal-footer">
@@ -141,7 +165,7 @@
 			      </div>
 			      
 			    </div>
-			</div> -->
+			</div>
 
 
 
