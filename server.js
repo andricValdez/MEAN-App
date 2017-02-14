@@ -56,11 +56,14 @@ apiRouter.post("/authenticate", function(req, res){
 				// console.log(session.active)
 
 				if (session.active == 'yes') {
-					//Sesion activada
-					return res.json(session);
+					//Sesion activada - valida token
+					//valideateToken();
+					console.log(req.body.token)
+					//return res.json(session);
 
 
 				}else{
+					//Crea sesion y guarda
 					saveSession(req, res, user, errU)
 				}
 			};

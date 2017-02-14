@@ -50,15 +50,15 @@ app.controller('mainController', function ($scope, $http) {
 		vm.type_IniciarSeSion = 'logInLocal';
 		$http.post("/api/authenticate", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
 			vm.token = response.data.token;
-       		vm.test = "Hola " + response.data.email + ". Este es tu token: " + response.data.token;
-       		console.log(response.data)
-    		 
+       		vm.test = "Hola " + response.data.email + ". Este es tu token: " + response.data.token; 		 
    		});
 	};
 
 
 	$scope.testB = function(){
-
+		$http.post("/api/authenticate", {'token':vm.token}).then(function(response) {
+			console.log(response)		 
+   		});
 	};
 
 
