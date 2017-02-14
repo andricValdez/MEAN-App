@@ -56,6 +56,7 @@ app.controller('mainController', function ($scope, $http) {
 
 
 	$scope.testB = function(){
+		console.log(vm.token)
 		$http.post("/api/authenticate_token", {'token':vm.token}).then(function(response) {
 			console.log(response)		 
    		});
