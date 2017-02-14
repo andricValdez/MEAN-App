@@ -61,10 +61,7 @@ apiRouter.post("/session", function(req, res){
 });
 
 apiRouter.post("/authenticate_token", function(req, res){
-	jwt.verify(req.body.token, superSecret, function(err, decoded) {
-	  console.log('decode: ',decoded) // bar
-	  res.json({message:'tokenValido'})
-	});
+	var decoded = jwt.decode(req.body.token);
 });
 
 app.use(function(req, res, next) {
