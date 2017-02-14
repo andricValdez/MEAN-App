@@ -62,6 +62,7 @@ apiRouter.post("/session", function(req, res){
 
 apiRouter.post("/authenticate_token", function(req, res){
 	var decoded = jwt.decode(req.body.token);
+	console.log(decoded)
 });
 
 app.use(function(req, res, next) {
