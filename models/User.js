@@ -5,10 +5,11 @@
 
  // user schema
  var UserSchema = new Schema({
+ 	username: { type: String, required: true, index: { unique: true }},
  	email: { type: String, required: true, index: { unique: true }},
- 	password: { type: String, required: false, select: false },
- 	type: { type: String, required: true, select: false },
- 	oauth_Token: { type: String, required: false, select: false },
+ 	password: { type: String, required: false},
+ 	type: { type: String, required: true},
+ 	oauth_Token: { type: String, required: false},
  });
 
  // hash the password before the user is saved

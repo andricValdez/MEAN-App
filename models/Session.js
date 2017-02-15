@@ -5,11 +5,11 @@
 
  // user schema
  var SessionSchema = new Schema({
- 	token: { type: String, required: true, index: { unique: true }},
- 	type: { type: String, required: true, select: false },
- 	oauth_Token: { type: String, required: false, select: false },
- 	user_id: { type: String, required: false, select: false },
- 	active: { type: String, required: true, select: false },
+ 	token: { type: String, required: false},
+ 	type: { type: String, required: true},
+ 	oauth_Token: { type: String, required: false},
+ 	user_id: { type: String, required: false},
+ 	active: { type: String, required: true},
  });
 
 

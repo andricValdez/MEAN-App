@@ -10,12 +10,12 @@
 		<link rel="stylesheet" href="css/style.css">
 
 		<script src="javascripts/jquery-1.11.3.min.js"></script>
-		<script src="javascripts/functionsJavaScript.js"></script>
 		<script src="javascripts/angular.min.js"></script>
 		<script src="javascripts/AngularJS.js"></script> 
 		<script src="javascripts/API_FB.js"></script> 
 		<script src="javascripts/bootstrap.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 		
  
 
@@ -26,20 +26,21 @@
 		<div class="container" id="mainPage">
 			<div class="jumbotron text-center">
 				<h1>{{main.message}}</h1>
+
 			</div>
 
 			<br>
 			<div class="row">
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
-					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp">Crear cuenta</button>
-				</div>
+					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp" ng-show="main.showCrearCuenta">Crear cuenta</button>
+				</div> 
 			</div>
 			<br>
 			<div class="row">
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
-					<button type="button" class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" data-target="#SignIn">Iniciar sesion</button>
+					<button type="button" class="btn btn-success btn-lg center-block btn-block" data-toggle="modal" data-target="#SignIn" ng-show="main.showIniciarSesion">Iniciar sesion</button>
 				</div>
 			</div>
   
@@ -58,8 +59,11 @@
 			        <div class="modal-body">
 
 			        	<form name="myForm" class="form-group">
+			        		<label for="email"><strong>UserName:</strong></label>
+					        <input type="text" name="UserName" class="form-control" ng-model="main.UserName_CrearCuenta" placeholder="Ingresa Nombre" required>
+					        <br>
 							<label for="email"><strong>Email:</strong></label>
-					        <input type="email" name="email" class="form-control" ng-model="main.emai_CrearCuenta" placeholder="Ingresa Email" required>
+					        <input type="email" name="email" class="form-control" ng-model="main.email_CrearCuenta" placeholder="Ingresa Email" required>
 					        <br>
 					        <label for="password"><strong>Contraseña:</strong></label>
 					        <input type="password" name="password" class="form-control" ng-model="main.password_CrearCuenta"  placeholder="Ingresa contraseña" required>
@@ -150,26 +154,27 @@
 
 
 	<!--Test Code-->	
-
+ 
 	    <br><br>
 	    <!-- <h4>Obtener usuarios:</h4> -->
 	    <button type="button" class="btn btn-default" ng-click="getUsers()">Get users</button>
 	    <br><hr>
 	    <div id="usersContent">
 			<table class="table table-hover" id="tableContent">
-			<button type="button" class="btn btn-default" id="deleteUser">Delete users</button>
+			<!-- <button type="button" class="btn btn-default" id="deleteUser">Delete users</button> -->
 		    </table>
 		    <h2 id="noContentTable"></h2>
 	    </div> 
 	    <!-- <button class="btn btn-danger" id="deleteUser">Eliminar</button> -->
 
-
-	    <br><br>
 		<p >{{main.test}}</p>
 
+		<!-- <div my-Directive></div> -->
+		<div ng-bind-html="main.myButton"></div>
+		<button type="button" style="float:right" class="btn btn-default" ng-if="main.statusButton" ng-click="logOut()">Cerrar sesion</button>
 	    <br><br>
 	    <button type="button" class="btn btn-default" ng-click="testB()">Send Token</button>
-	
+
 	    <br><br>
 		<div id="status">
 		</div>

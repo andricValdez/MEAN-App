@@ -27,7 +27,7 @@ app.set('views', path.join(__dirname, 'views'));
 // app.set('views/pages', path.join(__dirname, 'views/pages'));
 
 
-mongoose.connect("mongodb://localhost/API_DB");
+mongoose.connect("mongodb://localhost/MEAN_APP");
 //mongoose.connect("mongodb://AndricV:pantech41@jello.modulusmongo.net:27017/Q2ipyvop");
 
 
@@ -35,34 +35,61 @@ mongoose.connect("mongodb://localhost/API_DB");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+//Hacer middleware que valide token
 
-apiRouter.post("/session", function(req, res){
-	User.findOne({email: req.body.email}).select("email password").exec(function(errU, user){ 
-		Session.findOne({user_id: user._id}).select("active token").exec(function(errS, session){
-			if(!session){
-				console.log('session NO created'); 
-				if (req.body.type == 'logInLocal') {
-					saveSession(req, res, user, errU)
-				}else if(req.body.type == 'logInFb'){
-					//Autenticar oauth_tkoen, crear token local y guardar sesion
-				}
-			}else if(session){
-				if (session.active == 'yes') {
-					//Sesion activada 
-					return res.json(session);
+apiRouter.route("/test")
+	.get(function(req, res){
+		token = req.query.token
+		var decoded = jwt.decode(token);
+		console.log(decoded)
 
-				}else{
-					//Crea sesion y guarda
-					saveSession(req, res, user, errU)
-				}
-			};
-		});
 	});
-});
+
+
+apiRouter.route("/session")
+	.post(function(req, res){
+		User.findOne({email: req.body.email}).select("email password username").exec(function(errU, user){ 
+			//Cindcion aqui cuando no encuentra usuario... retornar res
+			Session.findOne({user_id: user._id}).select("active token").exec(function(errS, session){
+				//Tiene la sesión activa? : 
+				//No... crear
+				if(!session){
+					//Inicio sesión local?
+					if (req.body.type == 'logInLocal') {
+						saveSession(req, res, user, errU)
+
+					//Inicio sesión con FB?
+					}else if(req.body.type == 'logInFb'){
+						//Autenticar oauth_tkoen, crear token local y guardar sesion
+					}
+				//Sí... enviar datos a cliente
+				}else if(session){
+					if (session.active == 'yes') {
+						//Sesion activada 
+						res.json({
+							token: session.token,
+							email: user.email
+						})
+					}else{
+						//Crea sesion y guarda
+						saveSession(req, res, user, errU)
+					}
+				};
+			});
+		});
+	})
+
+	//Cierre de sesión - cambiar campo active de 'yes' a 'no'
+	.delete(function(req, res){
+		token = req.query.token
+		decipher_token (token, res)
+	});
+
+//Metodo Delete con endpoints Session --> para cerrar sesion (cambiar edo de active de 'yes' a 'no')
 
 apiRouter.post("/authenticate_token", function(req, res){
-	var decoded = jwt.decode(req.body.token);
-	console.log(decoded)
+	decipher_token (req.body.token)
+	//Hace un query a la BD
 });
 
 app.use(function(req, res, next) {
@@ -130,13 +157,13 @@ apiRouter.route("/users")
 	
 	//Crear un usuario
 	.post(function(req, res){
-		
+		username = req.body.username;
 		email = req.body.email;
 		password = req.body.password;
 		type = req.body.type;
 		oauth_Token = null;
 
-		saveUsers(email, password, type, oauth_Token, res)
+		saveUsers(username, email, password, type, oauth_Token, res)
 
 	})
  
@@ -212,11 +239,12 @@ console.log("Servidor escuchando en puerto 8080!");
 	Funciones 
 */
 
-function saveUsers(email, password, type, oauth_Token, res){
+function saveUsers(username, email, password, type, oauth_Token, res){
 	//Crear una nueva instancia del modelo del usuario
 	var user = new User();
 
 	//Establecer la info del usuario (que viene en la petición)
+	user.username = username;
 	user.email = email;
 	user.password = password;
 	user.type = type;
@@ -226,6 +254,7 @@ function saveUsers(email, password, type, oauth_Token, res){
 	user.save(function(err){
 		if(err){
 			//Duplicar entrada
+
 			if(err.code = 11000)
 				return res.json({success:false, message:"A user with that email already exist"});
 			else
@@ -247,7 +276,6 @@ function saveSession(req, res, user, err){
 	if(err)
 		throw err;
 
-	console.log(user)
 	//No se encontró un usuario con ese email
 	if(!user){
 		res.json({
@@ -265,16 +293,16 @@ function saveSession(req, res, user, err){
 			})
 		}else{
 		//Si el usuario y contraseña es correcto, crear token y crear sesión
-			var token = jwt.sign({email: user.email}, superSecret); // 1440 = 24 hrs
 			var session = new Session();
 
-			session.token = token;
+			session.token = '';
 			session.type = type;
 			session.user_id = user._id
 			session.active = 'yes'
 
 			//Crear doc de sesison en BD
-			session.save(function(err){
+			session.save(function(err, response){
+				console.log("Reponse:",response)
 				if(err){
 					//Duplicar entrada
 					if(err.code = 11000)
@@ -283,19 +311,23 @@ function saveSession(req, res, user, err){
 						return res.send(err);
 				};
 
-				// Session.find(function(err, sessions){
-				// 	if (err)
-				// 		res.send(err);
-
-				// 	res.json(sessions);
-				// });
+				//Crear token y actuaizar la BD
+				var token = jwt.sign({_id: response._id}, superSecret); // 1440 = 24 hrs
+				// Session.findById(decoded._id, function(err, session){
+				// 	session.token = token;
+				// 	session.save(function(err, response){
+				// 		console.log(response)
+				// 	})
+				// })
+				response.token = token
+				session.save()
 
 				//Retornar info incluido el token en json  
 				res.json({
 					success: true,
 					message: "Disfruta tu token!.. Sesion creada :)",
 					token: token,
-					email: user.email
+					username: user.username
 				})
 			});
 
@@ -305,6 +337,21 @@ function saveSession(req, res, user, err){
 
 }
 
+function decipher_token(token, res){
+	console.log("token: ",token)
+	var decoded = jwt.decode(token);
+
+	Session.findOne({_id: decoded._id}).select("active token").exec(function(errS, session){
+		if (session.active == 'yes') {
+			session.active = 'no';
+			session.save();
+			res.json(session)
+		}
+	})
+
+
+	
+}
 
 
 
