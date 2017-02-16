@@ -37,11 +37,29 @@ app.use(bodyParser.json());
 
 //Hacer middleware que valide token
 
-apiRouter.route("/test")
+apiRouter.route("/still_LogIn")
 	.get(function(req, res){
-		token = req.query.token
+		var token = req.query.token
 		var decoded = jwt.decode(token);
-		console.log(decoded)
+
+		Session.findOne({_id: decoded._id}).select("active token user_id").exec(function(err, session){
+			//Qué pasa si ya no existe la seision... va maracar error (corregir!)
+			User.findOne({_id: session.user_id}).select("email username").exec(function(errU, user){ 
+				if (err)
+					res.send(err);
+
+				if (errU)
+					res.send(err);
+
+				if (session.active == 'yes' && session.token == token) {
+					res.json({
+						success: true,
+						token: session.token,
+						username: user.username
+					})
+				}
+			})
+		})
 
 	});
 
@@ -66,9 +84,12 @@ apiRouter.route("/session")
 				}else if(session){
 					if (session.active == 'yes') {
 						//Sesion activada 
+						console.log("sesion activa")
 						res.json({
+							success: true,
+							message: "Disfruta tu token!.. Sesion creada :)",
 							token: session.token,
-							email: user.email
+							username: user.username
 						})
 					}else{
 						//Crea sesion y guarda
@@ -81,9 +102,28 @@ apiRouter.route("/session")
 
 	//Cierre de sesión - cambiar campo active de 'yes' a 'no'
 	.delete(function(req, res){
-		token = req.query.token
-		decipher_token (token, res)
-	});
+		var token = req.query.token
+		var decoded = jwt.decode(token);
+		Session.findOne({_id: decoded._id}).select("active token").exec(function(errS, session){
+			if (session.active == 'yes') {
+				session.active = 'no';
+				session.save();
+				res.json({
+					active: session.active,
+					token: session.token
+				})
+			}
+		})
+	})
+
+	.get(function(req, res){
+		Session.find(function(err, sessions){
+			if (err)
+				res.send(err);
+
+			res.json(sessions)
+		})
+	})
 
 //Metodo Delete con endpoints Session --> para cerrar sesion (cambiar edo de active de 'yes' a 'no')
 
@@ -173,8 +213,7 @@ apiRouter.route("/users")
 		User.find(function(err, users){
 			if (err)
 				res.send(err);
-
-			res.json(users);
+			res.json({records:users})
 		});
 	})
 
@@ -337,20 +376,10 @@ function saveSession(req, res, user, err){
 
 }
 
-function decipher_token(token, res){
+function decipher_token(token){
 	console.log("token: ",token)
 	var decoded = jwt.decode(token);
-
-	Session.findOne({_id: decoded._id}).select("active token").exec(function(errS, session){
-		if (session.active == 'yes') {
-			session.active = 'no';
-			session.save();
-			res.json(session)
-		}
-	})
-
-
-	
+	return decoded;
 }
 
 

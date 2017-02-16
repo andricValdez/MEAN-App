@@ -34,6 +34,7 @@
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
 					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp" ng-show="main.showCrearCuenta">Crear cuenta</button>
+					<button type="button" style="float:right" class="btn btn-danger btn-lg center-block btn-block" ng-if="main.cerrarSesionB" ng-click="logOut()">Cerrar sesion</button>
 				</div> 
 			</div>
 			<br>
@@ -154,10 +155,14 @@
 
 
 	<!--Test Code-->	
- 
-	    <br><br>
+  
+	    <br><br><hr>
 	    <!-- <h4>Obtener usuarios:</h4> -->
-	    <button type="button" class="btn btn-default" ng-click="getUsers()">Get users</button>
+	    <div class="btn-group">
+	    	<button type="button" class="btn btn-primary" ng-click="getUsers()">Get users</button>
+	    	<button type="button" class="btn btn-primary" ng-click="getSessions()">Get sessions</button>
+	    	<button type="button" class="btn btn-primary" ng-click="testB()">Send Token</button>
+	    </div>
 	    <br><hr>
 	    <div id="usersContent">
 			<table class="table table-hover" id="tableContent">
@@ -166,16 +171,20 @@
 		    <h2 id="noContentTable"></h2>
 	    </div> 
 	    <!-- <button class="btn btn-danger" id="deleteUser">Eliminar</button> -->
-
-		<p >{{main.test}}</p>
+	    <table>
+			<tr ng-repeat="x in main.Users">
+				<td>{{x.username}}</td>
+				<td>{{x.email}}</td>
+			</tr>
+		</table>
+		
+		<br><hr>
+		<!-- <p>{{main.Users}}</p> -->
+		<p >{{main.Sessions}}</p>
 
 		<!-- <div my-Directive></div> -->
 		<div ng-bind-html="main.myButton"></div>
-		<button type="button" style="float:right" class="btn btn-default" ng-if="main.statusButton" ng-click="logOut()">Cerrar sesion</button>
-	    <br><br>
-	    <button type="button" class="btn btn-default" ng-click="testB()">Send Token</button>
 
-	    <br><br>
 		<div id="status">
 		</div>
 
