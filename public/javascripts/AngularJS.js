@@ -21,6 +21,7 @@ app.controller('mainController', function ($scope, $http) {
 	vm.password_IniciarSeSion;
 	vm.type_IniciarSeSion;
 	vm.token = '';
+	vm.notEvalToken = true;
 
 	vm.test;
 	vm.Users;
@@ -37,12 +38,11 @@ app.controller('mainController', function ($scope, $http) {
 		console.log('token: ', localStorage.token)
 		//Enviar token y validar en server para saber si el usuario aún tiene sesión abierta
 		//¿Es bueno poner still_LogIn?
-		$http.get("/api/still_LogIn", {params: {'token':localStorage.token}}).then(function(response) {
+		$http.post("/api/still_LogIn", {'token':localStorage.token}).then(function(response) {
 			console.log(response.data)	
 			if (response.data.success == true) {
 				vm.token = response.data.token; 	
 	       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-	       		console.log(response.data)	
 	       		vm.showCrearCuenta = false;
 				vm.showIniciarSesion = false;
 	       		vm.cerrarSesionB = true;
@@ -52,34 +52,51 @@ app.controller('mainController', function ($scope, $http) {
 
 	// Funciones
 	$scope.signUpLocal = function(){
-		vm.type_CrearCuenta = 'signUpLocal'
+		vm.notEvalToken = false;
+		vm.type_CrearCuenta = 'logInLocal'
 		$http.post("/api/users", {'password':vm.password_CrearCuenta, 'username':vm.UserName_CrearCuenta, 'email':vm.email_CrearCuenta, 'type':vm.type_CrearCuenta}).then(function(response) {
-       		console.log(response.data);
+       		if (response.data.success == true) {
+	       		vm.token = response.data.token; 	
+	       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
+	       		console.log(response.data)	
+	       		vm.showCrearCuenta = false;
+				vm.showIniciarSesion = false;
+	       		vm.cerrarSesionB = true;
+	       	}
    		});
 	};
 
 	$scope.checkLoginState = function(){
   		FB.login(function(response){
-  			vm.type_CrearCuenta = 'signUpFB'
+  			vm.type_CrearCuenta = 'logInFb'
   			if (response.status == "connected") {
-  				$http.post("/api/usersFB", {'oauth_Token':response.authResponse.accessToken, 'type':vm.type}).then(function(response) {
-    				console.log(response.data);
+  				$http.post("/api/session", {'oauth_Token':response.authResponse.accessToken, 'type':vm.type_CrearCuenta}).then(function(response) {
+    				if (response.data.success == true) {
+	    				vm.token = response.data.token; 	
+			       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
+			       		console.log(response.data)	
+			       		vm.showCrearCuenta = false;
+						vm.showIniciarSesion = false;
+			       		vm.cerrarSesionB = true;
+		       		}
    				});
   			}
 		});
 	};
 
 	$scope.getUsers = function(){
-		
+		vm.notEvalToken = false;
 		$http.get("/api/users").then(function(response){
 			//Pendiente: poder iterar en cada user y iterar username y usar n-retpeat (no me ha saildo)
 			console.log(response.data.records)
 			vm.Users = response.data.records
 			// angular.copy(response.data, vm.Users);
+			vm.notEvalToken = true;
 		});
 	};
 
 	$scope.getSessions = function(){
+		vm.notEvalToken = false;
 		$http.get("/api/session").then(function(response){
 			vm.Sessions = response.data;
 		});
@@ -87,6 +104,7 @@ app.controller('mainController', function ($scope, $http) {
 
 	$scope.logInLocal = function(){
 		vm.type_IniciarSeSion = 'logInLocal';
+		vm.notEvalToken = false;
 		$http.post("/api/session", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
 			if (response.data.success == true) {
 				vm.token = response.data.token; 	
@@ -96,10 +114,12 @@ app.controller('mainController', function ($scope, $http) {
 				vm.showIniciarSesion = false;
 	       		vm.cerrarSesionB = true;
 			}
+			vm.notEvalToken = true;
    		});
 	};
 
 	$scope.logOut = function(){
+		vm.notEvalToken = false;
 		$http.delete("/api/session", {params: {'token':vm.token}}).then(function(response) {
 			console.log(response.data)		 
 			if (response.data.active == 'no') {
@@ -109,6 +129,7 @@ app.controller('mainController', function ($scope, $http) {
 	       		vm.cerrarSesionB = false;
 	       		vm.message = "¡Welcome to our page!";
 			}
+			vm.notEvalToken = true;
    		});
 	};
 
@@ -117,8 +138,9 @@ app.controller('mainController', function ($scope, $http) {
 
 	$scope.testB = function(){
 
-		$http.get("/api/test", {params: {'token':vm.token}}).then(function(response) {
-			console.log(response.data)		 
+		$http.post("/api/test", {'token':vm.token}).then(function(response) {
+			console.log(response.data)		
+			vm.notEvalToken = true; 
    		});
 	};
 
