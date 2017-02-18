@@ -175,12 +175,20 @@
 			<tr ng-repeat="x in main.Users">
 				<td>{{x.username}}</td>
 				<td>{{x.email}}</td>
+				<td>{{x.type}}</td>
 			</tr>
 		</table>
 		
 		<br><hr>
 		<!-- <p>{{main.Users}}</p> -->
-		<p >{{main.Sessions}}</p>
+		<!-- <p >{{main.Sessions}}</p> -->
+		<table>
+			<tr ng-repeat="x in main.Sessions">
+				<td>{{x.user_id}}</td>
+				<td>{{x.active}}</td>
+				<td>{{x.type}}</td>
+			</tr>
+		</table>
 
 		<!-- <div my-Directive></div> -->
 		<div ng-bind-html="main.myButton"></div>

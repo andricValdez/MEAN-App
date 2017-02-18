@@ -3,7 +3,7 @@
 var app = angular.module("myApp",["ngRoute", 'ngSanitize']);
 
 
-
+ 
 
 app.controller('mainController', function ($scope, $http) {
 
@@ -27,7 +27,7 @@ app.controller('mainController', function ($scope, $http) {
 	vm.Users;
 	vm.Sessions;
 
-	vm.prueba;
+	vm.prueba = null;
 	vm.myButton;
 	vm.cerrarSesionB = false;
 	vm.showCrearCuenta = true;
@@ -35,7 +35,6 @@ app.controller('mainController', function ($scope, $http) {
 
 	// console.log(localStorage.token)
 	if (localStorage.token  != '') {
-		console.log('token: ', localStorage.token)
 		//Enviar token y validar en server para saber si el usuario aún tiene sesión abierta
 		//¿Es bueno poner still_LogIn?
 		$http.post("/api/still_LogIn", {'token':localStorage.token}).then(function(response) {
@@ -55,10 +54,10 @@ app.controller('mainController', function ($scope, $http) {
 		vm.notEvalToken = false;
 		vm.type_CrearCuenta = 'logInLocal'
 		$http.post("/api/users", {'password':vm.password_CrearCuenta, 'username':vm.UserName_CrearCuenta, 'email':vm.email_CrearCuenta, 'type':vm.type_CrearCuenta}).then(function(response) {
+       		console.log(response.data)	
        		if (response.data.success == true) {
 	       		vm.token = response.data.token; 	
 	       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-	       		console.log(response.data)	
 	       		vm.showCrearCuenta = false;
 				vm.showIniciarSesion = false;
 	       		vm.cerrarSesionB = true;
@@ -71,10 +70,10 @@ app.controller('mainController', function ($scope, $http) {
   			vm.type_CrearCuenta = 'logInFb'
   			if (response.status == "connected") {
   				$http.post("/api/session", {'oauth_Token':response.authResponse.accessToken, 'type':vm.type_CrearCuenta}).then(function(response) {
+    				console.log(response.data)	
     				if (response.data.success == true) {
 	    				vm.token = response.data.token; 	
 			       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-			       		console.log(response.data)	
 			       		vm.showCrearCuenta = false;
 						vm.showIniciarSesion = false;
 			       		vm.cerrarSesionB = true;
@@ -98,7 +97,9 @@ app.controller('mainController', function ($scope, $http) {
 	$scope.getSessions = function(){
 		vm.notEvalToken = false;
 		$http.get("/api/session").then(function(response){
-			vm.Sessions = response.data;
+			console.log(response.data.records)
+			vm.Sessions = response.data.records
+
 		});
 	};
 
@@ -137,7 +138,10 @@ app.controller('mainController', function ($scope, $http) {
 
 
 	$scope.testB = function(){
-
+		
+		if (!vm.prueba) {
+			console.log("token: ",vm.token)
+		}
 		$http.post("/api/test", {'token':vm.token}).then(function(response) {
 			console.log(response.data)		
 			vm.notEvalToken = true; 

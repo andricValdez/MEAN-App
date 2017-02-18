@@ -9,7 +9,6 @@
  	email: { type: String, required: true, index: { unique: true }},
  	password: { type: String, required: false},
  	type: { type: String, required: true},
- 	oauth_Token: { type: String, required: false},
  });
 
  // hash the password before the user is saved

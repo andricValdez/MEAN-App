@@ -15,9 +15,10 @@ var express = require('express'),
 
 var http = require("http");
 var https = require("https");
-
-
 var superSecret = "ilovechilechilechilechile";
+
+//Variables globales:
+validate_oauthToken = false;
 
  
 //************************** Build a RESTFull API **********************************************
@@ -48,6 +49,9 @@ apiRouter.post("/authenticate_token", function(req, res){
 	*************    Middlewares
 */
 
+//Cargar todas las peticiones en la consola
+app.use(morgan("dev"));
+
 //amdminRouter.use define una middleware 
 adminRouter.use(function(req, res, next){ 
 	//log each request to the console
@@ -57,64 +61,42 @@ adminRouter.use(function(req, res, next){
 
 app.use(function(req, res, next) {
 	console.log('Somebody just came to our app!');
-	console.log("req: ",req.path);
+	validate_oauthToken = false;
 	next();
 });
 
-//validar tokens una ves iniciada la sesión
+//validar tokens una vez iniciada la sesión
 //No se puede validar token: al iniciar sesión, al crear usuario, al cerrar sesión
+//NOTA: solo en las request va a viajar mi token... el oauth_token se va validar del lado del server por cada peticion (primero calida token local y luego ooatu_token... ponert el campo oauth_token en sessions)
 apiRouter.use(function(req, res, next){ 
 	//esto se puede cambiar por una variable que se esté pasando en cada peticion para saber si el usuario sigue con sesion abierta y saber si se va a evaluar el token
 	//Qué va a paar cuando se quier validar el token con metodos como DELTE o GET... (que no viajen en el body)
-	if (req.url=='/users' || req.url == "/still_LogIn" || req.path == '/api/session' || req.url == '/session') {
+	if (req.url=='/users' || req.path == '/session' || req.url == '/session') {
 		next();
 
-	}else if (req.body.oauth_Token && req.body.token) {
+	}else if (req.body.token) {
 		//validar oauth_Token y token
-		console.log("oauth_Token: ",req.body.oauth_Token)
-		var options = {
-			    hostname: "graph.facebook.com",
-			    method: 'GET',
-			    port: 443,
-			    path: '/me?access_token='+req.body.oauth_Token+'',
-		 	}; 
-  		var reqFB = https.get(options, function(resFB) {
-    		resFB.setEncoding('utf8');
-	    	resFB.on('data', function(result) {
-	    		var obj = JSON.parse(result) 
-	    		
-	    		if (obj.id) {
-	    			//token valido
-	    			next();
-	    		}else{
-	    			//token no valido
-	    			res.json({message:"fail"})
-	    		}
-     		})
-	    	});
-	    reqFB.on('error', function(e) {
-	      console.log('ERROR: ' + e.message);
 
-	    });
-
-	}else if(req.body.token && !req.body.oauth_Token){
-		//validar token
 		var decoded = jwt.decode(req.body.token);
-		console.log("Token: ",req.body.token)
 		if (decoded != null) {
-			Session.findOne({_id: decoded._id}).select("active token user_id").exec(function(err, session){
+			Session.findOne({_id: decoded._id}).select("type token oauth_Token").exec(function(err, session){
 				if (err) {
 					//token invalido
 					res.json({message:"fail"})
 				}
 				if (session.token == req.body.token) {
 					//token valido
+					console.log("Token: valido")
+					if (session.oauth_Token) {
+						validate_oauthToken = true;
+						req.body.oauth_Token = session.oauth_Token;
+						next();
+					}
 					next();
 				}else{
 					//token invalido
 					res.json({message:"fail"})
 				}
-
 			});
 		}else{
 			//token invalido
@@ -122,15 +104,43 @@ apiRouter.use(function(req, res, next){
 		}
 
 	}else{
-		next();
+		res.json({message:"fail"})
 	}
-	
+});
 
-})
+//Validar oauth_Token
+apiRouter.use(function(req, res, next){ 
 
-//Cargar todas las peticiones en la consola
-app.use(morgan("dev"));
+	if (validate_oauthToken) {
 
+		var options = {
+			    hostname: "graph.facebook.com",
+			    method: 'GET',
+			    port: 443,
+			    path: '/me?access_token='+req.body.oauth_Token+'',
+		 }; 
+		var reqFB = https.get(options, function(resFB) {
+			resFB.setEncoding('utf8');
+	    	resFB.on('data', function(result) {
+	    		var obj = JSON.parse(result) 
+	    		
+	    		if (obj.id) {
+	    			//token valido
+	    			console.log("oauth_Token: valido")
+	    			next();
+	    		}else{
+	    			//token no valido
+	    			res.json({message:"fail"})
+	    		}
+	 		})
+	    });
+	    reqFB.on('error', function(e) {
+	      console.log('ERROR: ' + e.message);
+	    });
+	 }else{
+	 	next();
+	 }
+});
 
 
 /*
@@ -139,8 +149,7 @@ app.use(morgan("dev"));
 
 apiRouter.route("/test")
 	.post(function(req, res){
-		console.log(req.body.token)
-		res.json({message:"success"})
+		res.json({message:"success, token(s) valido"})
 	})
 
 app.get("/", function(req, res){
@@ -186,14 +195,10 @@ apiRouter.route("/still_LogIn")
 
 apiRouter.route("/session")
 	.post(function(req, res){
-		console.log(req.body.type)
-		console.log(req.body.oauth_Token)
 
 		if (req.body.type == "logInFb") {
 			//Crear usuario
 			oauth_Token = req.body.oauth_Token 
-			type = req.body.type;
-			password = null
 
 			var options = {
 			    hostname: "graph.facebook.com",
@@ -210,7 +215,6 @@ apiRouter.route("/session")
 		    		var obj = JSON.parse(result)
 		    		req.body.email = obj.email
 		    		req.body.username = obj.name
-		    		console.log(obj.email, obj.name)
 		    		//Almacenar en BD 
 		    		saveUsers(req, res)  
 		     	})
@@ -265,8 +269,7 @@ apiRouter.route("/session")
 				session.active = 'no';
 				session.save();
 				res.json({
-					active: session.active,
-					token: session.token
+					active: session.active
 				})
 			}
 		})
@@ -277,40 +280,10 @@ apiRouter.route("/session")
 			if (err)
 				res.send(err);
 
-			res.json(sessions)
+			res.json({records:sessions})
 		})
 	})
 
-
-apiRouter.route("/usersFB")
-	
-	.post(function(req, res, next){
-		oauth_Token = req.body.oauth_Token 
-		type = req.body.type;
-		password = null
-
-		var options = {
-		    hostname: "graph.facebook.com",
-		    method: 'GET',
-		    port: 443,
-		    path: '/me?fields=email',
-		    headers: { 
-		      'Authorization': 'OAuth ' + oauth_Token
-		   },
- 		 }; 
-  		var reqFB = https.get(options, function(resFB) {
-    		resFB.setEncoding('utf8');
-	    	resFB.on('data', function(result) {
-	    		var obj = JSON.parse(result)
-	    		//Almacenar en BD 
-	    		saveUsers(null, obj.email, password, type, oauth_Token, res)     
-	     	})
- 	    });
-	    reqFB.on('error', function(e) {
-	      console.log('ERROR: ' + e.message);
-
-	    });
-	});
 
 apiRouter.route("/users")
 	
@@ -322,7 +295,6 @@ apiRouter.route("/users")
 		type = req.body.type;
 		oauth_Token = null;
 
-		// saveUsers(username, email, password, type, oauth_Token, res)
 		saveUsers(req, res)
 
 	})
@@ -400,49 +372,31 @@ console.log("Servidor escuchando en puerto 8080!");
 
 //function saveUsers(username, email, password, type, oauth_Token, res){
 function saveUsers(req, res){
+	
 	//Crear una nueva instancia del modelo del usuario
 	var user = new User();
 
 	//Establecer la info del usuario (que viene en la petición)
 	user.username = req.body.username;
 	user.email = req.body.email;
-	user.password = req.body.password;
 	user.type = req.body.type;
 
-	if (req.body.type == "logInLocal") {
-		user.oauth_Token = null;
-	}
-	if (req.body.type == "logInFb") {
-		user.password = null;
-	}
-
+	if (req.body.type == "logInLocal") 
+		user.password = req.body.password;
+	
 	//Gurdar al usuario y checar errores
 	user.save(function(err){
 		if(err){
 			//Duplicar entrada
-			//console.log(err)
 			if(err.code = 11000)
 				return res.json({success:false, message:"A user with that email already exist"});
 			else
 				return res.send(err);
 		};
 
-		// User.find(function(err, users){
-		// 	if (err)
-		// 		res.send(err);
-		// 	res.json(user)
-
-		// });
-
-		if (err)
-			res.send(err);
-
 		if (req.body.type == "logInLocal") {
-			console.log(user)
 			saveSession(req, res, user, err)
-			// saveSession(req, res, user)
 		}else if (req.body.type == "logInFb") {
-			console.log(user)
 			saveSession(req, res, user, err)
 		}
 
@@ -486,9 +440,14 @@ function saveSession(req, res, user, err){
 			session.user_id = user._id
 			session.active = 'yes'
 
+			if (req.body.type == "logInLocal") {
+				session.oauth_Token = null;
+			}else{
+				session.oauth_Token = req.body.oauth_Token
+			}
+
 			//Crear doc de sesison en BD
 			session.save(function(err, response){
-				console.log("Reponse:",response)
 				if(err){
 
 					//Duplicar entrada
@@ -500,12 +459,7 @@ function saveSession(req, res, user, err){
 
 				//Crear token y actuaizar la BD
 				var token = jwt.sign({_id: response._id}, superSecret); // 1440 = 24 hrs
-				// Session.findById(decoded._id, function(err, session){
-				// 	session.token = token;
-				// 	session.save(function(err, response){
-				// 		console.log(response)
-				// 	})
-				// })
+
 				response.token = token
 				session.save()
 
