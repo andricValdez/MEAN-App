@@ -65,24 +65,20 @@ app.use(function(req, res, next) {
 	next();
 });
 
-//validar tokens una vez iniciada la sesión
-//No se puede validar token: al iniciar sesión, al crear usuario, al cerrar sesión
-//NOTA: solo en las request va a viajar mi token... el oauth_token se va validar del lado del server por cada peticion (primero calida token local y luego ooatu_token... ponert el campo oauth_token en sessions)
+//Validar token
 apiRouter.use(function(req, res, next){ 
-	//esto se puede cambiar por una variable que se esté pasando en cada peticion para saber si el usuario sigue con sesion abierta y saber si se va a evaluar el token
-	//Qué va a paar cuando se quier validar el token con metodos como DELTE o GET... (que no viajen en el body)
+
 	if (req.url=='/users' || req.path == '/session' || req.url == '/session') {
 		next();
-
-	}else if (req.body.token) {
-		//validar oauth_Token y token
-
+	}
+	else if (req.body.token) {
+		//validar token
 		var decoded = jwt.decode(req.body.token);
 		if (decoded != null) {
-			Session.findOne({_id: decoded._id}).select("type token oauth_Token").exec(function(err, session){
+			Session.findOne({_id: decoded._id}).select("type token oauth_Token active").exec(function(err, session){
 				if (err) {
 					//token invalido
-					res.json({message:"fail"})
+					res.json({message:"failP"})
 				}
 				if (session.token == req.body.token) {
 					//token valido
@@ -90,47 +86,57 @@ apiRouter.use(function(req, res, next){
 					if (session.oauth_Token) {
 						validate_oauthToken = true;
 						req.body.oauth_Token = session.oauth_Token;
+						req.body._id = session._id;
+						next();
+					}else{
 						next();
 					}
-					next();
 				}else{
 					//token invalido
-					res.json({message:"fail"})
+					//Si no es valido... cerrar sesion (falta)
+					console.log("Token: invalido")
+					session.active = 'no';
+					session.save()
+					res.json({message:"Token(s) invalido"})
 				}
 			});
 		}else{
 			//token invalido
-			res.json({message:"fail"})
+			console.log("Token: invalido")
+			res.json({message:"Token(s) invalido"})
 		}
-
-	}else{
-		res.json({message:"fail"})
+	}
+	else{
+		res.json({message:"Token(s) invalido"})
 	}
 });
 
 //Validar oauth_Token
 apiRouter.use(function(req, res, next){ 
-
 	if (validate_oauthToken) {
-
 		var options = {
 			    hostname: "graph.facebook.com",
 			    method: 'GET',
 			    port: 443,
 			    path: '/me?access_token='+req.body.oauth_Token+'',
-		 }; 
+		}; 
 		var reqFB = https.get(options, function(resFB) {
 			resFB.setEncoding('utf8');
 	    	resFB.on('data', function(result) {
 	    		var obj = JSON.parse(result) 
-	    		
 	    		if (obj.id) {
 	    			//token valido
 	    			console.log("oauth_Token: valido")
 	    			next();
 	    		}else{
 	    			//token no valido
-	    			res.json({message:"fail"})
+	    			//Si no es valido... cerrar sesion 
+	    			console.log("oauth_Token: invalido")
+	    			Session.findOne({_id: req.body._id}).select("type active").exec(function(err, session){
+	    				session.active = 'no';
+						session.save(function(err, response){})
+	    			})
+	    			res.json({message:"Token(s) invalido"})
 	    		}
 	 		})
 	    });
@@ -149,13 +155,12 @@ apiRouter.use(function(req, res, next){
 
 apiRouter.route("/test")
 	.post(function(req, res){
-		res.json({message:"success, token(s) valido"})
+		res.json({message:"Token(s) valido"})
 	})
 
 app.get("/", function(req, res){
 	res.sendfile('views/index.html', {});
 });
-
 
 //*** Obtener una instancia de las rutas de express
 apiRouter.get("/", function(req, res){
@@ -186,10 +191,10 @@ apiRouter.route("/still_LogIn")
 					}
 				})
 			})
-		}else{
+		}
+		else{
 			res.json({message:'fail'})
 		}
-
 	})
 
 
@@ -215,14 +220,25 @@ apiRouter.route("/session")
 		    		var obj = JSON.parse(result)
 		    		req.body.email = obj.email
 		    		req.body.username = obj.name
-		    		//Almacenar en BD 
-		    		saveUsers(req, res)  
+		    		User.findOne({email: req.body.email}).select("email, username").exec(function(errU, user){ 
+		    			if (!user) {
+		    				saveUsers(req, res) 
+		    			}else{
+		    				saveSession(req, res, user, errU)
+		    			}
+		    		});
 		     	})
 	 	    });
 		    reqFB.on('error', function(e) {
 		      console.log('ERROR: ' + e.message);
-
 		    });
+
+		}else if (req.body.type == "logInGoogle") {
+
+
+
+
+
 		}else if (req.body.type == "logInLocal") {
 
 			User.findOne({email: req.body.email}).select("email password username").exec(function(errU, user){ 
@@ -253,11 +269,11 @@ apiRouter.route("/session")
 						}else{
 							//Crea sesion y guarda
 							saveSession(req, res, user, errU)
-						}
+						};
 					};
 				});
 			});
-		}
+		};
 	})
 
 	//Cierre de sesión - cambiar campo active de 'yes' a 'no'
@@ -270,9 +286,9 @@ apiRouter.route("/session")
 				session.save();
 				res.json({
 					active: session.active
-				})
-			}
-		})
+				});
+			};
+		});
 	})
 
 	.get(function(req, res){
@@ -370,7 +386,7 @@ console.log("Servidor escuchando en puerto 8080!");
 	Funciones 
 */
 
-//function saveUsers(username, email, password, type, oauth_Token, res){
+
 function saveUsers(req, res){
 	
 	//Crear una nueva instancia del modelo del usuario
@@ -398,14 +414,11 @@ function saveUsers(req, res){
 			saveSession(req, res, user, err)
 		}else if (req.body.type == "logInFb") {
 			saveSession(req, res, user, err)
-		}
-
-		// res.json(user)
-
+		};
 	});
 };
 
-// function saveSession(req, res, user, err){
+
 function saveSession(req, res, user, err){
 	type = req.body.type
 
@@ -476,6 +489,10 @@ function saveSession(req, res, user, err){
 		}
 	}
 
+}
+
+function desactiveSession() {
+	
 }
 
 function decipher_token(token){

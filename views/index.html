@@ -34,7 +34,7 @@
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
 					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp" ng-show="main.showCrearCuenta">Crear cuenta</button>
-					<button type="button" style="float:right" class="btn btn-danger btn-lg center-block btn-block" ng-if="main.cerrarSesionB" ng-click="logOut()">Cerrar sesion</button>
+					<button type="button" style="float:right" class="btn btn-warning btn-lg center-block btn-block" ng-if="main.cerrarSesionB" ng-click="logOut()">Cerrar sesion</button>
 				</div> 
 			</div>
 			<br>
@@ -106,6 +106,8 @@
 				        <br>
 				        <!-- <div class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="false" onlogin="checkLoginState()"></div> -->
 						<button type="button" class="btn btn-primary btn-lg btn-block" ng-click="checkLoginState()" >Iniciar sesion con Facebook</button>
+						<br>
+						<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="" >Iniciar sesion con Google</button>
 						<br>
 			        </div>
 			        <div class="modal-footer">

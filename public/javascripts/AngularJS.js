@@ -3,7 +3,7 @@
 var app = angular.module("myApp",["ngRoute", 'ngSanitize']);
 
 
- 
+  
 
 app.controller('mainController', function ($scope, $http) {
 
@@ -40,11 +40,7 @@ app.controller('mainController', function ($scope, $http) {
 		$http.post("/api/still_LogIn", {'token':localStorage.token}).then(function(response) {
 			console.log(response.data)	
 			if (response.data.success == true) {
-				vm.token = response.data.token; 	
-	       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-	       		vm.showCrearCuenta = false;
-				vm.showIniciarSesion = false;
-	       		vm.cerrarSesionB = true;
+				$scope.validToken(response);
 			}	 
   		});
 	}
@@ -56,11 +52,7 @@ app.controller('mainController', function ($scope, $http) {
 		$http.post("/api/users", {'password':vm.password_CrearCuenta, 'username':vm.UserName_CrearCuenta, 'email':vm.email_CrearCuenta, 'type':vm.type_CrearCuenta}).then(function(response) {
        		console.log(response.data)	
        		if (response.data.success == true) {
-	       		vm.token = response.data.token; 	
-	       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-	       		vm.showCrearCuenta = false;
-				vm.showIniciarSesion = false;
-	       		vm.cerrarSesionB = true;
+	       		$scope.validToken(response);
 	       	}
    		});
 	};
@@ -72,11 +64,7 @@ app.controller('mainController', function ($scope, $http) {
   				$http.post("/api/session", {'oauth_Token':response.authResponse.accessToken, 'type':vm.type_CrearCuenta}).then(function(response) {
     				console.log(response.data)	
     				if (response.data.success == true) {
-	    				vm.token = response.data.token; 	
-			       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-			       		vm.showCrearCuenta = false;
-						vm.showIniciarSesion = false;
-			       		vm.cerrarSesionB = true;
+	    				$scope.validToken(response);
 		       		}
    				});
   			}
@@ -90,7 +78,6 @@ app.controller('mainController', function ($scope, $http) {
 			console.log(response.data.records)
 			vm.Users = response.data.records
 			// angular.copy(response.data, vm.Users);
-			vm.notEvalToken = true;
 		});
 	};
 
@@ -108,12 +95,8 @@ app.controller('mainController', function ($scope, $http) {
 		vm.notEvalToken = false;
 		$http.post("/api/session", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
 			if (response.data.success == true) {
-				vm.token = response.data.token; 	
-	       		vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
-	       		console.log(response.data)	
-	       		vm.showCrearCuenta = false;
-				vm.showIniciarSesion = false;
-	       		vm.cerrarSesionB = true;
+				console.log(response.data)	
+				$scope.validToken(response);
 			}
 			vm.notEvalToken = true;
    		});
@@ -124,11 +107,7 @@ app.controller('mainController', function ($scope, $http) {
 		$http.delete("/api/session", {params: {'token':vm.token}}).then(function(response) {
 			console.log(response.data)		 
 			if (response.data.active == 'no') {
-				vm.token = '';
-				vm.showCrearCuenta = true;
-				vm.showIniciarSesion = true;
-	       		vm.cerrarSesionB = false;
-	       		vm.message = "¡Welcome to our page!";
+				$scope.invalidToken();
 			}
 			vm.notEvalToken = true;
    		});
@@ -143,9 +122,28 @@ app.controller('mainController', function ($scope, $http) {
 			console.log("token: ",vm.token)
 		}
 		$http.post("/api/test", {'token':vm.token}).then(function(response) {
-			console.log(response.data)		
-			vm.notEvalToken = true; 
+			console.log(response.data)
+			if (response.data.message == "Token(s) invalido") {
+				$scope.invalidToken();
+			}
+					
    		});
+	};
+
+	$scope.invalidToken = function(){
+		vm.token = '';
+		vm.showCrearCuenta = true;
+		vm.showIniciarSesion = true;
+   		vm.cerrarSesionB = false;
+   		vm.message = "¡Welcome to our page!";
+	};
+
+	$scope.validToken = function(response){
+		vm.token = response.data.token; 	
+	    vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
+	    vm.showCrearCuenta = false;
+		vm.showIniciarSesion = false;
+	    vm.cerrarSesionB = true;
 	};
 
 
