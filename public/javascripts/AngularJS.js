@@ -12,7 +12,7 @@ app.controller('mainController', function ($scope, $http) {
 	var vm = this;
 
 	//Definir variables y objetos aquí
-	vm.message = "¡Welcome to our page!";
+	vm.message = "¡Welcome to Pitaya Soft!";
 	vm.email_CrearCuenta;
 	vm.password_CrearCuenta;
 	vm.type_CrearCuenta;
@@ -50,7 +50,7 @@ app.controller('mainController', function ($scope, $http) {
 			}	 
   		});
 	}
- 
+
 	// Funciones
 	$scope.signUpLocal = function(){
 		vm.notEvalToken = false;
@@ -121,16 +121,14 @@ app.controller('mainController', function ($scope, $http) {
 	};
 
 	
-	$scope.testB = function(){
+	$scope.sendToken = function(){
 
 		if (vm.type_CrearCuenta == 'logInGoogle'){
 			var auth2 = gapi.auth2.getAuthInstance();
 			var isSignedIn = auth2.isSignedIn.get()
-			console.log(isSignedIn)
+			//console.log(isSignedIn)
 		}
-		if (!vm.prueba) {
-			console.log("token: ",vm.token)
-		}
+
 		$http.post("/api/test", {'token':vm.token, 'type':vm.type_CrearCuenta, 'isSignedIn':isSignedIn}).then(function(response) {
 			console.log(response.data)
 			if (response.data.message == "Token(s) invalido") {
@@ -157,7 +155,7 @@ app.controller('mainController', function ($scope, $http) {
 		vm.showCrearCuenta = true;
 		vm.showIniciarSesion = true;
    		vm.cerrarSesionB = false;
-   		vm.message = "¡Welcome to our page!";
+   		vm.message = "¡Welcome Pitaya Soft!";
    		vm.picture = false;
 	};
 

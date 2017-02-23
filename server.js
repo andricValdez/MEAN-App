@@ -18,6 +18,9 @@ var http = require("http");
 var https = require("https");
 var superSecret = "ilovechilechilechilechile";
 
+'use strict';
+const nodemailer = require('nodemailer');
+
 
 
 //Variables globales:
@@ -247,7 +250,7 @@ apiRouter.route("/session")
 		if (req.body.type == "logInFb") {
 			//Crear usuario
 			oauth_Token = req.body.oauth_Token 
-			console.log(oauth_Token)
+			//console.log(oauth_Token)
 
 			var options = {
 			    hostname: "graph.facebook.com",
@@ -265,7 +268,6 @@ apiRouter.route("/session")
 		    		req.body.email = obj.email
 		    		req.body.username = obj.name
 		    		req.body.picture = obj.picture.data.url
-		    		console.log(obj.picture.data.url)
 		    		User.findOne({email: req.body.email}).select("email, username").exec(function(errU, user){ 
 		    			if (!user) {
 			    				saveUsers(req, res) 
@@ -298,43 +300,41 @@ apiRouter.route("/session")
 			// res.json({message:"success"})
 			var auth = new GoogleAuth;
 		    var client = new auth.OAuth2(CLIENT_ID, '', '');
-		    client.verifyIdToken(
-			    req.body.oauth_Token,
-			    CLIENT_ID,
+		    client.verifyIdToken(req.body.oauth_Token,CLIENT_ID,
 			    // Or, if multiple clients access the backend:
 			    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3],
-			    function(e, login) {
-			    	var payload = login.getPayload();
-			    	var userid = payload['sub'];
+		    function(e, login) {
+		    	var payload = login.getPayload();
+		    	var userid = payload['sub'];
 
-			    	//var obj = JSON.parse(payload) 
-			    	req.body.email = payload.email;
-		    		req.body.username = payload.name;
-		    		req.body.picture = payload.picture;
+		    	//var obj = JSON.parse(payload) 
+		    	req.body.email = payload.email;
+	    		req.body.username = payload.name;
+	    		req.body.picture = payload.picture;
 
-		    		User.findOne({email: req.body.email}).select("_id, email, username").exec(function(errU, user){ 
-		    			if (!user) {
-			    				saveUsers(req, res) 
-			    		}else{
-			    			Session.find({type:req.body.type, active:'yes'}, function(errS, session){
-								if (!session.length) {
-									saveSession(req, res, user, errU)
-								
-								}else{
-				    				return res.json({
-										message:'ya tienes la sesion activa',
-										success: true,
-										token: session[session.length-1].token,
-										username: user.username,
-										picture: payload.picture
-									})
-				    			}
-			    			});
-		    			}	
-		    		});
+	    		User.findOne({email: req.body.email}).select("_id, email, username").exec(function(errU, user){ 
+	    			if (!user) {
+		    				saveUsers(req, res) 
+		    		}else{
+		    			Session.find({type:req.body.type, active:'yes'}, function(errS, session){
+							if (!session.length) {
+								saveSession(req, res, user, errU)
+							
+							}else{
+			    				return res.json({
+									message:'ya tienes la sesion activa',
+									success: true,
+									token: session[session.length-1].token,
+									username: user.username,
+									picture: payload.picture
+								})
+			    			}
+		    			});
+	    			}	
+	    		});
 
-			    });
-
+		    });
+            
 		}else if (req.body.type == "logInLocal") {
 
 			User.findOne({email: req.body.email}).select("email password username").exec(function(errU, user){ 
@@ -516,6 +516,8 @@ function saveUsers(req, res){
 				return res.send(err);
 		};
 
+        sendEmail(user.email);
+
 		if (req.body.type == "logInLocal") {
 			saveSession(req, res, user, err)
 		}else if (req.body.type == "logInFb") {
@@ -611,7 +613,35 @@ function decipher_token(token){
 }
 
 
+function sendEmail(email){
 
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        service: 'hotmail',
+        auth: {
+            user: 'andric_valdez@hotmail.com',
+            pass: 'pantech3041'
+        }
+    });
 
+    // setup email data with unicode symbols
+    let mailOptions = {
+        from: '"Andric Valdez" <andric_valdez@hotmail.com>', // sender address
+        to: email, // list of receivers
+        subject: 'Welcome to Pitaya Soft', // Subject line
+        text: 'Welcome to Pitaya Soft', // plain text body
+        html: '<b>Gracias por ser parte de nosotros...</b>' // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        //console.log('Message %s sent: %s', info.messageId, info.response);
+        console.log('Mail enviado a: ', email)
+    });
+
+}
 
 
