@@ -3,8 +3,12 @@
 	<head>
 		<meta charset="UTF-8"> 
 		<title>AVV</title>	
- 
+  
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<meta name="google-signin-scope" content="profile email">
+    	<meta name="google-signin-client_id" content="274208808468-fu2383e453bs2eseucr8e8ncup59dl2h.apps.googleusercontent.com">
+   		<script src="https://apis.google.com/js/platform.js" async defer></script>
 		
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/style.css">
@@ -13,11 +17,12 @@
 		<script src="javascripts/angular.min.js"></script>
 		<script src="javascripts/AngularJS.js"></script> 
 		<script src="javascripts/API_FB.js"></script> 
+		<script src="javascripts/API_GOOGLE.js"></script> 
 		<script src="javascripts/bootstrap.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 		
- 
+  
 
 	</head>
 
@@ -28,13 +33,13 @@
 				<h1>{{main.message}}</h1>
 
 			</div>
-
+			<img id="imgUser" ng-src="{{main.picture}}" ng-if="main.picture"/>
 			<br>
 			<div class="row">
 				<div class="col-sm-4"></div>
   				<div class="col-sm-4">
 					<button type="button" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" ng-href="#SignUp" ng-show="main.showCrearCuenta">Crear cuenta</button>
-					<button type="button" style="float:right" class="btn btn-warning btn-lg center-block btn-block" ng-if="main.cerrarSesionB" ng-click="logOut()">Cerrar sesion</button>
+					<button type="button" style="float:right" class="btn btn-danger btn-lg center-block btn-block" ng-if="main.cerrarSesionB" ng-click="logOut()">Cerrar sesion</button>
 				</div> 
 			</div>
 			<br>
@@ -107,7 +112,10 @@
 				        <!-- <div class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="false" onlogin="checkLoginState()"></div> -->
 						<button type="button" class="btn btn-primary btn-lg btn-block" ng-click="checkLoginState()" >Iniciar sesion con Facebook</button>
 						<br>
-						<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="" >Iniciar sesion con Google</button>
+						<!-- <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="" >Iniciar sesion con Google</button> -->
+
+						<div class="g-signin2" data-onsuccess="onSignIn" style="display: table;margin-right: auto;margin-left: auto; " ></div>
+						<img id="myImage" src="">
 						<br>
 			        </div>
 			        <div class="modal-footer">
@@ -164,8 +172,10 @@
 	    	<button type="button" class="btn btn-primary" ng-click="getUsers()">Get users</button>
 	    	<button type="button" class="btn btn-primary" ng-click="getSessions()">Get sessions</button>
 	    	<button type="button" class="btn btn-primary" ng-click="testB()">Send Token</button>
+
 	    </div>
 	    <br><hr>
+	    <!-- <img src="https://mail.google.com/mail/u/0/?logout&hl=en" /> -->
 	    <div id="usersContent">
 			<table class="table table-hover" id="tableContent">
 			<!-- <button type="button" class="btn btn-default" id="deleteUser">Delete users</button> -->

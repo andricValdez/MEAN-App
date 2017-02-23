@@ -1,4 +1,4 @@
-
+  
 
 var app = angular.module("myApp",["ngRoute", 'ngSanitize']);
 
@@ -22,6 +22,7 @@ app.controller('mainController', function ($scope, $http) {
 	vm.type_IniciarSeSion;
 	vm.token = '';
 	vm.notEvalToken = true;
+	vm.picture;
 
 	vm.test;
 	vm.Users;
@@ -33,18 +34,23 @@ app.controller('mainController', function ($scope, $http) {
 	vm.showCrearCuenta = true;
 	vm.showIniciarSesion = true;
 
+	
+
 	// console.log(localStorage.token)
 	if (localStorage.token  != '') {
 		//Enviar token y validar en server para saber si el usuario aún tiene sesión abierta
 		//¿Es bueno poner still_LogIn?
-		$http.post("/api/still_LogIn", {'token':localStorage.token}).then(function(response) {
+
+		$http.post("/api/still_LogIn", {'token':localStorage.token, 'isSignedIn':localStorage.isSignedIn}).then(function(response) {
 			console.log(response.data)	
-			if (response.data.success == true) {
+			if (response.data.type == 'logInGoogle' && response.data.success == true) {
+
+			}else if (response.data.success == true) {
 				$scope.validToken(response);
 			}	 
   		});
 	}
-
+ 
 	// Funciones
 	$scope.signUpLocal = function(){
 		vm.notEvalToken = false;
@@ -91,37 +97,41 @@ app.controller('mainController', function ($scope, $http) {
 	};
 
 	$scope.logInLocal = function(){
-		vm.type_IniciarSeSion = 'logInLocal';
-		vm.notEvalToken = false;
-		$http.post("/api/session", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_IniciarSeSion}).then(function(response) {
+		vm.type_CrearCuenta = 'logInLocal';
+		$http.post("/api/session", {'password':vm.password_IniciarSeSion, 'email':vm.email_IniciarSeSion, 'type':vm.type_CrearCuenta}).then(function(response) {
 			if (response.data.success == true) {
 				console.log(response.data)	
 				$scope.validToken(response);
 			}
-			vm.notEvalToken = true;
    		});
 	};
 
 	$scope.logOut = function(){
-		vm.notEvalToken = false;
 		$http.delete("/api/session", {params: {'token':vm.token}}).then(function(response) {
-			console.log(response.data)		 
+			console.log(response.data)	
+ 
 			if (response.data.active == 'no') {
+				if (vm.type_CrearCuenta == 'logInGoogle') 
+					gapi.auth2.getAuthInstance().signOut();
+				
 				$scope.invalidToken();
 			}
-			vm.notEvalToken = true;
+
    		});
 	};
 
 	
-
-
 	$scope.testB = function(){
-		
+
+		if (vm.type_CrearCuenta == 'logInGoogle'){
+			var auth2 = gapi.auth2.getAuthInstance();
+			var isSignedIn = auth2.isSignedIn.get()
+			console.log(isSignedIn)
+		}
 		if (!vm.prueba) {
 			console.log("token: ",vm.token)
 		}
-		$http.post("/api/test", {'token':vm.token}).then(function(response) {
+		$http.post("/api/test", {'token':vm.token, 'type':vm.type_CrearCuenta, 'isSignedIn':isSignedIn}).then(function(response) {
 			console.log(response.data)
 			if (response.data.message == "Token(s) invalido") {
 				$scope.invalidToken();
@@ -130,12 +140,25 @@ app.controller('mainController', function ($scope, $http) {
    		});
 	};
 
+
+	$scope.logInGoogle = function (id_token) {
+		//console.log(id_token)
+		vm.type_CrearCuenta = 'logInGoogle';
+		$http.post("/api/session", {'oauth_Token':id_token, 'type':vm.type_CrearCuenta}).then(function(response) {
+			console.log(response.data)	
+			if (response.data.success == true) {
+				$scope.validToken(response);
+       		}
+   		});
+	}
+
 	$scope.invalidToken = function(){
 		vm.token = '';
 		vm.showCrearCuenta = true;
 		vm.showIniciarSesion = true;
    		vm.cerrarSesionB = false;
    		vm.message = "¡Welcome to our page!";
+   		vm.picture = false;
 	};
 
 	$scope.validToken = function(response){
@@ -144,16 +167,22 @@ app.controller('mainController', function ($scope, $http) {
 	    vm.showCrearCuenta = false;
 		vm.showIniciarSesion = false;
 	    vm.cerrarSesionB = true;
+	    //No es mejor guardar la url e la foto del usuario en la BD ?? 
+	    vm.picture = response.data.picture;
 	};
-
 
 
 	window.onbeforeunload = function (event) {
 	    if (typeof(Storage) !== "undefined") {
 		    localStorage.token = vm.token;
+		    localStorage.type = vm.type_CrearCuenta
+
+			localStorage.isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get()
+
 		} else {
 		    // Sorry! No Web Storage support..
 		}
+		//gapi.auth2.getAuthInstance().signOut();
 	};
 
 
@@ -177,5 +206,6 @@ app.controller('myHomeController', function($scope, $http){
 	vm.message = "hello";
 
 })
+
 
 

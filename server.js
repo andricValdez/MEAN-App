@@ -1,4 +1,4 @@
-
+ 
 //Importar librerías/módulos/Dependencias
 var express = require('express'),
 	app = express(),
@@ -11,11 +11,14 @@ var express = require('express'),
 	port = process.env.PORT || 8080,         //Establecer el puerto de nuestra aplicación
 	User = require("./models/User"),         //Modelo del usuario
 	Session = require("./models/Session"),   //Modelo de sesion
-	jwt = require("jsonwebtoken");
-
+	jwt = require("jsonwebtoken"),
+	GoogleAuth = require('google-auth-library');
+  
 var http = require("http");
 var https = require("https");
 var superSecret = "ilovechilechilechilechile";
+
+
 
 //Variables globales:
 validate_oauthToken = false;
@@ -86,6 +89,7 @@ apiRouter.use(function(req, res, next){
 					if (session.oauth_Token) {
 						validate_oauthToken = true;
 						req.body.oauth_Token = session.oauth_Token;
+						req.body.type = session.type;
 						req.body._id = session._id;
 						next();
 					}else{
@@ -114,35 +118,72 @@ apiRouter.use(function(req, res, next){
 //Validar oauth_Token
 apiRouter.use(function(req, res, next){ 
 	if (validate_oauthToken) {
-		var options = {
+		//No es mejor guardar la url e la foto del usuario en la BD ?? 
+		if (req.body.type == 'logInFb') {
+			var options = {
 			    hostname: "graph.facebook.com",
 			    method: 'GET',
 			    port: 443,
-			    path: '/me?access_token='+req.body.oauth_Token+'',
-		}; 
-		var reqFB = https.get(options, function(resFB) {
-			resFB.setEncoding('utf8');
-	    	resFB.on('data', function(result) {
-	    		var obj = JSON.parse(result) 
-	    		if (obj.id) {
-	    			//token valido
-	    			console.log("oauth_Token: valido")
-	    			next();
-	    		}else{
-	    			//token no valido
-	    			//Si no es valido... cerrar sesion 
-	    			console.log("oauth_Token: invalido")
-	    			Session.findOne({_id: req.body._id}).select("type active").exec(function(err, session){
-	    				session.active = 'no';
-						session.save(function(err, response){})
-	    			})
-	    			res.json({message:"Token(s) invalido"})
-	    		}
-	 		})
-	    });
-	    reqFB.on('error', function(e) {
-	      console.log('ERROR: ' + e.message);
-	    });
+			    path: '/me?fields=email,name,picture',
+			    headers: { 
+			      'Authorization': 'OAuth ' + req.body.oauth_Token
+			   }
+	 		 };  
+			var reqFB = https.get(options, function(resFB) {
+				resFB.setEncoding('utf8');
+		    	resFB.on('data', function(result) {
+		    		var obj = JSON.parse(result) 
+		    		if (obj.id) {
+		    			//token valido
+		    			console.log("oauth_Token: valido")
+		    			req.body.picture = obj.picture.data.url
+		    			next();
+		    		}else{
+		    			//token no valido
+		    			//Si no es valido... cerrar sesion 
+		    			console.log("oauth_Token: invalido")
+		    			Session.findOne({_id: req.body._id}).select("type active").exec(function(err, session){
+		    				session.active = 'no';
+							session.save(function(err, response){})
+		    			})
+		    			res.json({message:"Token(s) invalido"})
+		    		}
+		 		})
+		    });
+		    reqFB.on('error', function(e) {
+		      console.log('ERROR: ' + e.message);
+		    });
+	    }else if (req.body.type == 'logInGoogle') {
+	    	CLIENT_ID = "274208808468-fu2383e453bs2eseucr8e8ncup59dl2h.apps.googleusercontent.com"
+			// console.log("oauth_Token: ",req.body.oauth_Token)
+			// res.json({message:"success"})
+			var auth = new GoogleAuth;
+		    var client = new auth.OAuth2(CLIENT_ID, '', '');
+		    //var auth2 = gapi.auth2.getAuthInstance();
+			
+		    client.verifyIdToken(
+			    req.body.oauth_Token,
+			    CLIENT_ID,
+			    function(e, login) {
+			    	var payload = login.getPayload();
+			    	var userid = payload['sub'];
+
+			    	//console.log(payload)
+			    	if (userid && req.body.isSignedIn) {
+			    		console.log("oauth_Token: valido")
+		    			next();
+			    	}else{
+			    		//token no valido
+		    			//Si no es valido... cerrar sesion 
+		    			console.log("oauth_Token: invalido")
+		    			Session.findOne({_id: req.body._id}).select("type active").exec(function(err, session){
+		    				session.active = 'no';
+							session.save(function(err, response){})
+		    			})
+		    			res.json({message:"Token(s) invalido"})
+			    	}
+			    });
+	    }
 	 }else{
 	 	next();
 	 }
@@ -173,7 +214,7 @@ apiRouter.route("/still_LogIn")
 		var decoded = jwt.decode(token);
 
 		if (decoded != null) {
-			Session.findOne({_id: decoded._id}).select("active token user_id").exec(function(err, session){
+			Session.findOne({_id: decoded._id}).select("active token user_id type").exec(function(err, session){
 				//Qué pasa si ya no existe la seision... va maracar error (corregir!)
 				User.findOne({_id: session.user_id}).select("email username").exec(function(errU, user){ 
 					if (err)
@@ -186,7 +227,9 @@ apiRouter.route("/still_LogIn")
 						res.json({
 							success: true,
 							token: session.token,
-							username: user.username
+							username: user.username,
+							type: session.type,
+							picture: req.body.picture
 						})
 					}
 				})
@@ -204,12 +247,13 @@ apiRouter.route("/session")
 		if (req.body.type == "logInFb") {
 			//Crear usuario
 			oauth_Token = req.body.oauth_Token 
+			console.log(oauth_Token)
 
 			var options = {
 			    hostname: "graph.facebook.com",
 			    method: 'GET',
 			    port: 443,
-			    path: '/me?fields=email,name',
+			    path: '/me?fields=email,name,picture',
 			    headers: { 
 			      'Authorization': 'OAuth ' + oauth_Token
 			   },
@@ -220,11 +264,26 @@ apiRouter.route("/session")
 		    		var obj = JSON.parse(result)
 		    		req.body.email = obj.email
 		    		req.body.username = obj.name
+		    		req.body.picture = obj.picture.data.url
+		    		console.log(obj.picture.data.url)
 		    		User.findOne({email: req.body.email}).select("email, username").exec(function(errU, user){ 
 		    			if (!user) {
-		    				saveUsers(req, res) 
-		    			}else{
-		    				saveSession(req, res, user, errU)
+			    				saveUsers(req, res) 
+			    		}else{
+			    			Session.find({type:req.body.type, active:'yes'}, function(errS, session){
+								if (!session.length) {
+									saveSession(req, res, user, errU)
+								
+								}else{
+				    				return res.json({
+										message:'ya tienes la sesion activa',
+										success: true,
+										token: session[session.length-1].token,
+										username: user.username,
+										picture: obj.picture.data.url
+									})
+				    			}
+			    			});
 		    			}
 		    		});
 		     	})
@@ -234,10 +293,47 @@ apiRouter.route("/session")
 		    });
 
 		}else if (req.body.type == "logInGoogle") {
+			CLIENT_ID = "274208808468-fu2383e453bs2eseucr8e8ncup59dl2h.apps.googleusercontent.com"
+			// console.log("oauth_Token: ",req.body.oauth_Token)
+			// res.json({message:"success"})
+			var auth = new GoogleAuth;
+		    var client = new auth.OAuth2(CLIENT_ID, '', '');
+		    client.verifyIdToken(
+			    req.body.oauth_Token,
+			    CLIENT_ID,
+			    // Or, if multiple clients access the backend:
+			    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3],
+			    function(e, login) {
+			    	var payload = login.getPayload();
+			    	var userid = payload['sub'];
 
+			    	//var obj = JSON.parse(payload) 
+			    	req.body.email = payload.email;
+		    		req.body.username = payload.name;
+		    		req.body.picture = payload.picture;
 
+		    		User.findOne({email: req.body.email}).select("_id, email, username").exec(function(errU, user){ 
+		    			if (!user) {
+			    				saveUsers(req, res) 
+			    		}else{
+			    			Session.find({type:req.body.type, active:'yes'}, function(errS, session){
+								if (!session.length) {
+									saveSession(req, res, user, errU)
+								
+								}else{
+				    				return res.json({
+										message:'ya tienes la sesion activa',
+										success: true,
+										token: session[session.length-1].token,
+										username: user.username,
+										picture: payload.picture
+									})
+				    			}
+			    			});
+		    			}	
+		    		});
 
-
+			    });
 
 		}else if (req.body.type == "logInLocal") {
 
@@ -292,12 +388,22 @@ apiRouter.route("/session")
 	})
 
 	.get(function(req, res){
-		Session.find(function(err, sessions){
+	// Intento de hacer un join entre Session y User 
+	// Session.aggregate({
+	 //  	  $lookup:{
+	 //        from:"User",
+	 //        localField:"user_id",
+	 //        foreignField:"_id",
+	 //        as:"name"
+	 //      }
+	 //    })
+	    Session.find(function(err, sessions){
 			if (err)
 				res.send(err);
 
 			res.json({records:sessions})
 		})
+
 	})
 
 
@@ -414,6 +520,8 @@ function saveUsers(req, res){
 			saveSession(req, res, user, err)
 		}else if (req.body.type == "logInFb") {
 			saveSession(req, res, user, err)
+		}else if (req.body.type == "logInGoogle") {
+			saveSession(req, res, user, err)
 		};
 	});
 };
@@ -433,7 +541,7 @@ function saveSession(req, res, user, err){
 		})
 	}else if(user){
 	//Checar si la contraseña coincide
-		if (type == 'logInFb') {
+		if (type == 'logInFb' || type == 'logInGoogle') {
 			validPassword = true;
 		}else{
 			var validPassword = user.comparePassword(req.body.password);
@@ -481,7 +589,8 @@ function saveSession(req, res, user, err){
 					success: true,
 					message: "Disfruta tu token!.. Sesion creada :)",
 					token: token,
-					username: user.username
+					username: user.username,
+					picture: req.body.picture
 				})
 			});
 

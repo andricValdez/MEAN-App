@@ -9,6 +9,8 @@
   "author": "Andric Valdez",
   "license": "ISC",
   "dependencies": {
-    "jsonwebtoken": "^7.1.9"
+    "google-auth-library": "^0.10.0",
+    "jsonwebtoken": "^7.1.9",
+    "nodemailer": "^3.1.3"
   }
 }

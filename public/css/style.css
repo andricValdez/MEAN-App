@@ -65,6 +65,14 @@
     	margin-right: auto 
 	}
 
+	#imgUser {
+		display: block;
+		margin-right: auto;
+		margin-left: auto;
+		width: 100px;
+		height: 100px;
+	}
+
 	
 
 
