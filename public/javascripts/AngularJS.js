@@ -12,7 +12,8 @@ app.controller('mainController', function ($scope, $http) {
 	var vm = this;
 
 	//Definir variables y objetos aquí
-	vm.message = "¡Welcome to Pitaya Soft!";
+	vm.message;
+	vm.mainMessage = "¡Welcome to Pitaya Soft!";
 	vm.email_CrearCuenta;
 	vm.password_CrearCuenta;
 	vm.type_CrearCuenta;
@@ -155,13 +156,15 @@ app.controller('mainController', function ($scope, $http) {
 		vm.showCrearCuenta = true;
 		vm.showIniciarSesion = true;
    		vm.cerrarSesionB = false;
-   		vm.message = "¡Welcome Pitaya Soft!";
+   		vm.message = "";
+   		vm.mainMessage = "¡Welcome Pitaya Soft!";
    		vm.picture = false;
 	};
 
 	$scope.validToken = function(response){
-		vm.token = response.data.token; 	
-	    vm.message = "Hola " + response.data.username + " \n¡Bienvenido!"
+		vm.token = response.data.token; 
+		vm.mainMessage = 'Pitaya Soft'	
+	    vm.message = "Hola, " + response.data.username + " \n¡Bienvenido!"
 	    vm.showCrearCuenta = false;
 		vm.showIniciarSesion = false;
 	    vm.cerrarSesionB = true;
