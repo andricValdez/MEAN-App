@@ -2,7 +2,7 @@
 //Importar librerías/módulos/Dependencias
 var express = require('express'),
 	app = express(),
-	path = require('path');
+	path = require('path'),
 	adminRouter = express.Router(),
 	apiRouter = express.Router(),
 	mongoose = require("mongoose"),          //Para trabajar con la base de datos
@@ -12,21 +12,19 @@ var express = require('express'),
 	User = require("./models/User"),         //Modelo del usuario
 	Session = require("./models/Session"),   //Modelo de sesion
 	jwt = require("jsonwebtoken"),
-	GoogleAuth = require('google-auth-library');
-  
-var http = require("http");
-var https = require("https");
-var superSecret = "ilovechilechilechilechile";
+	GoogleAuth = require('google-auth-library'),
+    http = require("http"),
+    https = require("https");
+
 
 'use strict';
 const nodemailer = require('nodemailer');
 
-
-
 //Variables globales:
-validate_oauthToken = false;
-
+var validate_oauthToken = false;
+var superSecret = "ilovechilechilechilechile";
  
+
 //************************** Build a RESTFull API **********************************************
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,14 +39,6 @@ mongoose.connect("mongodb://localhost/MEAN_APP");
 // Usar body parser para tomar la información de las peticiones POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-//Metodo Delete con endpoints Session --> para cerrar sesion (cambiar edo de active de 'yes' a 'no')
-
-apiRouter.post("/authenticate_token", function(req, res){
-	decipher_token (req.body.token)
-	//Hace un query a la BD
-});
-
 
 
 /*
@@ -84,7 +74,7 @@ apiRouter.use(function(req, res, next){
 			Session.findOne({_id: decoded._id}).select("type token oauth_Token active").exec(function(err, session){
 				if (err) {
 					//token invalido
-					res.json({message:"failP"})
+					res.json({message:"Token(s) invalido"})
 				}
 				if (session.token == req.body.token) {
 					//token valido
@@ -100,7 +90,7 @@ apiRouter.use(function(req, res, next){
 					}
 				}else{
 					//token invalido
-					//Si no es valido... cerrar sesion (falta)
+					//Si no es valido... cerrar sesion 
 					console.log("Token: invalido")
 					session.active = 'no';
 					session.save()
@@ -131,7 +121,7 @@ apiRouter.use(function(req, res, next){
 			    headers: { 
 			      'Authorization': 'OAuth ' + req.body.oauth_Token
 			   }
-	 		 };  
+	 		};  
 			var reqFB = https.get(options, function(resFB) {
 				resFB.setEncoding('utf8');
 		    	resFB.on('data', function(result) {
@@ -147,7 +137,7 @@ apiRouter.use(function(req, res, next){
 		    			console.log("oauth_Token: invalido")
 		    			Session.findOne({_id: req.body._id}).select("type active").exec(function(err, session){
 		    				session.active = 'no';
-							session.save(function(err, response){})
+							session.save();
 		    			})
 		    			res.json({message:"Token(s) invalido"})
 		    		}
@@ -159,10 +149,8 @@ apiRouter.use(function(req, res, next){
 	    }else if (req.body.type == 'logInGoogle') {
 	    	CLIENT_ID = "274208808468-fu2383e453bs2eseucr8e8ncup59dl2h.apps.googleusercontent.com"
 			// console.log("oauth_Token: ",req.body.oauth_Token)
-			// res.json({message:"success"})
 			var auth = new GoogleAuth;
 		    var client = new auth.OAuth2(CLIENT_ID, '', '');
-		    //var auth2 = gapi.auth2.getAuthInstance();
 			
 		    client.verifyIdToken(
 			    req.body.oauth_Token,
@@ -170,7 +158,6 @@ apiRouter.use(function(req, res, next){
 			    function(e, login) {
 			    	var payload = login.getPayload();
 			    	var userid = payload['sub'];
-
 			    	//console.log(payload)
 			    	if (userid && req.body.isSignedIn) {
 			    		console.log("oauth_Token: valido")
@@ -181,10 +168,10 @@ apiRouter.use(function(req, res, next){
 		    			console.log("oauth_Token: invalido")
 		    			Session.findOne({_id: req.body._id}).select("type active").exec(function(err, session){
 		    				session.active = 'no';
-							session.save(function(err, response){})
+							session.save();
 		    			})
 		    			res.json({message:"Token(s) invalido"})
-			    	}
+			    	};
 			    });
 	    }
 	 }else{
@@ -194,7 +181,7 @@ apiRouter.use(function(req, res, next){
 
 
 /*
-	*************    Rutas de la API
+	*************    Rutas/End Points de la API
 */
 
 apiRouter.route("/test")
@@ -260,7 +247,7 @@ apiRouter.route("/session")
 			    headers: { 
 			      'Authorization': 'OAuth ' + oauth_Token
 			   },
-	 		 }; 
+	 		}; 
 	  		var reqFB = https.get(options, function(resFB) {
 	    		resFB.setEncoding('utf8');
 		    	resFB.on('data', function(result) {
@@ -275,7 +262,6 @@ apiRouter.route("/session")
 			    			Session.find({type:req.body.type, active:'yes'}, function(errS, session){
 								if (!session.length) {
 									saveSession(req, res, user, errU)
-								
 								}else{
 				    				return res.json({
 										message:'ya tienes la sesion activa',
@@ -293,16 +279,13 @@ apiRouter.route("/session")
 		    reqFB.on('error', function(e) {
 		      console.log('ERROR: ' + e.message);
 		    });
-
 		}else if (req.body.type == "logInGoogle") {
 			CLIENT_ID = "274208808468-fu2383e453bs2eseucr8e8ncup59dl2h.apps.googleusercontent.com"
 			// console.log("oauth_Token: ",req.body.oauth_Token)
-			// res.json({message:"success"})
 			var auth = new GoogleAuth;
 		    var client = new auth.OAuth2(CLIENT_ID, '', '');
 		    client.verifyIdToken(req.body.oauth_Token,CLIENT_ID,
-			    // Or, if multiple clients access the backend:
-			    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3],
+
 		    function(e, login) {
 		    	var payload = login.getPayload();
 		    	var userid = payload['sub'];
@@ -319,7 +302,6 @@ apiRouter.route("/session")
 		    			Session.find({type:req.body.type, active:'yes'}, function(errS, session){
 							if (!session.length) {
 								saveSession(req, res, user, errU)
-							
 							}else{
 			    				return res.json({
 									message:'ya tienes la sesion activa',
@@ -343,22 +325,15 @@ apiRouter.route("/session")
 					//Tiene la sesión activa? : 
 					//No... crear
 					if(!session){
-						//Inicio sesión local?
-						if (req.body.type == 'logInLocal') {
-							saveSession(req, res, user, errU)
+						saveSession(req, res, user, errU)
 
-						//Inicio sesión con FB?
-						}else if(req.body.type == 'logInFb'){
-							//Autenticar oauth_tkoen, crear token local y guardar sesion
-						}
 					//Sí... enviar datos a cliente
 					}else if(session){
 						if (session.active == 'yes') {
 							//Sesion activada 
-							console.log("sesion activa")
 							res.json({
 								success: true,
-								message: "Disfruta tu token!.. Sesion creada :)",
+								message:'ya tienes la sesion activa',
 								token: session.token,
 								username: user.username
 							})
@@ -388,22 +363,13 @@ apiRouter.route("/session")
 	})
 
 	.get(function(req, res){
-	// Intento de hacer un join entre Session y User 
-	// Session.aggregate({
-	 //  	  $lookup:{
-	 //        from:"User",
-	 //        localField:"user_id",
-	 //        foreignField:"_id",
-	 //        as:"name"
-	 //      }
-	 //    })
+	// Intento de hacer un join entre Session y User (ver ORM)
 	    Session.find(function(err, sessions){
 			if (err)
 				res.send(err);
 
 			res.json({records:sessions})
 		})
-
 	})
 
 
@@ -418,7 +384,6 @@ apiRouter.route("/users")
 		oauth_Token = null;
 
 		saveUsers(req, res)
-
 	})
  
 	//Tomar a todos los usuatios
@@ -572,7 +537,6 @@ function saveSession(req, res, user, err){
 			//Crear doc de sesison en BD
 			session.save(function(err, response){
 				if(err){
-
 					//Duplicar entrada
 					if(err.code = 11000)
 						return res.json({success:false, message:"That session already exist"});
@@ -602,16 +566,6 @@ function saveSession(req, res, user, err){
 
 }
 
-function desactiveSession() {
-	
-}
-
-function decipher_token(token){
-	console.log("token: ",token)
-	var decoded = jwt.decode(token);
-	return decoded;
-}
-
 
 function sendEmail(email){
 
@@ -619,8 +573,8 @@ function sendEmail(email){
     let transporter = nodemailer.createTransport({
         service: 'hotmail',
         auth: {
-            user: 'andric_valdez@hotmail.com',
-            pass: 'pantech3041'
+            user: '',
+            pass: ''
         }
     });
 

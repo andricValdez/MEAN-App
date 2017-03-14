@@ -12,7 +12,7 @@
 		
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/style.css">
-
+ 
 		<script src="javascripts/jquery-1.11.3.min.js"></script>
 		<script src="javascripts/angular.min.js"></script>
 		<script src="javascripts/AngularJS.js"></script> 
@@ -22,8 +22,6 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 		
-  
-
 	</head>
 
 	<body id="body" ng-app="myApp" ng-controller="mainController as main">
@@ -93,7 +91,6 @@
 
 			<p>{{main.type}}</p>
 			<br>
-
 
 
 	<!--Modal Iniciar sesion-->
@@ -167,47 +164,47 @@
 
 	<!--Test Code-->	
   
-	    <br><br><hr>
-	    <!-- <h4>Obtener usuarios:</h4> -->
-	    <div class="btn-group">
-	    	<button type="button" class="btn btn-primary" ng-click="getUsers()">Get users</button>
-	    	<button type="button" class="btn btn-primary" ng-click="getSessions()">Get sessions</button>
-	    	<button type="button" class="btn btn-primary" ng-click="sendToken()">Send Token</button>
+		    <br><br><hr>
+		    <!-- <h4>Obtener usuarios:</h4> -->
+		    <div class="btn-group">
+		    	<button type="button" class="btn btn-primary" ng-click="getUsers()">Get users</button>
+		    	<button type="button" class="btn btn-primary" ng-click="getSessions()">Get sessions</button>
+		    	<button type="button" class="btn btn-primary" ng-click="sendToken()">Send Token</button>
 
-	    </div>
-	    <br><hr>
-	    <!-- <img src="https://mail.google.com/mail/u/0/?logout&hl=en" /> -->
-	    <div id="usersContent">
-			<table class="table table-hover" id="tableContent">
-			<!-- <button type="button" class="btn btn-default" id="deleteUser">Delete users</button> -->
-		    </table>
-		    <h2 id="noContentTable"></h2>
-	    </div> 
-	    <!-- <button class="btn btn-danger" id="deleteUser">Eliminar</button> -->
-	    <table>
-			<tr ng-repeat="x in main.Users">
-				<td>{{x.username}}</td>
-				<td>{{x.email}}</td>
-				<td>{{x.type}}</td>
-			</tr>
-		</table>
-		
-		<br><hr>
-		<!-- <p>{{main.Users}}</p> -->
-		<!-- <p >{{main.Sessions}}</p> -->
-		<table>
-			<tr ng-repeat="x in main.Sessions">
-				<td>{{x.user_id}}</td>
-				<td>{{x.active}}</td>
-				<td>{{x.type}}</td>
-			</tr>
-		</table>
+		    </div>
+		    <br><hr>
+		    <!-- <img src="https://mail.google.com/mail/u/0/?logout&hl=en" /> -->
+		    <div id="usersContent">
+				<table class="table table-hover" id="tableContent">
+				<!-- <button type="button" class="btn btn-default" id="deleteUser">Delete users</button> -->
+			    </table>
+			    <h2 id="noContentTable"></h2>
+		    </div> 
+		    <!-- <button class="btn btn-danger" id="deleteUser">Eliminar</button> -->
+		    <table>
+				<tr ng-repeat="x in main.Users">
+					<td>{{x.username}}</td>
+					<td>{{x.email}}</td>
+					<td>{{x.type}}</td>
+				</tr>
+			</table>
+			
+			<br><hr>
+			<!-- <p>{{main.Users}}</p> -->
+			<!-- <p >{{main.Sessions}}</p> -->
+			<table>
+				<tr ng-repeat="x in main.Sessions">
+					<td>{{x.user_id}}</td>
+					<td>{{x.active}}</td>
+					<td>{{x.type}}</td>
+				</tr>
+			</table>
 
-		<!-- <div my-Directive></div> -->
-		<div ng-bind-html="main.myButton"></div>
+			<!-- <div my-Directive></div> -->
+			<div ng-bind-html="main.myButton"></div>
 
-		<div id="status">
-		</div>
+			<div id="status">
+			</div>
 
 		</div>
 
